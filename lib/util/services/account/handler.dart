@@ -38,6 +38,9 @@ class AccountHandler {
               "metadata": user?.userMetadata,
             });
 
+            //Save User in Database
+            await _saveUserInDB(user: user!);
+
             //Go Home
             Get.offAll(() => const Vaultify());
           }
@@ -86,6 +89,24 @@ class AccountHandler {
     } on AuthException catch (error) {
       //Notify User
       ToastHandler.toast(message: error.message);
+    }
+  }
+
+  ///Save User in Database
+  static Future<void> _saveUserInDB({required User user}) async {
+    //Database
+    final db = Supabase.instance.client;
+
+    //Save User in Database
+    try {
+      await db.from("users").insert({
+        "id": user.id,
+        "username": user.userMetadata?["username"],
+        "joined": DateTime.now().millisecondsSinceEpoch,
+      });
+    } on Exception catch (error) {
+      //Throw Exception
+      throw Exception(error.toString());
     }
   }
 }

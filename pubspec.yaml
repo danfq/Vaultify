@@ -26,6 +26,7 @@ dependencies:
   lottie: ^3.1.2
   flutter_vector_icons: ^2.0.0
   fluttertoast: ^8.2.8
+  settings_ui: ^2.0.2
 
 dev_dependencies:
   flutter_test:
