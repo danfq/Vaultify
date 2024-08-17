@@ -18,6 +18,14 @@ dependencies:
   adaptive_theme: ^3.6.0
   hive: ^2.2.3
   supabase_flutter: ^2.6.0
+  google_fonts: ^6.2.1
+  hive_flutter: ^1.1.0
+  path_provider: ^2.1.4
+  flutter_dotenv: ^5.1.0
+  introduction_screen: ^3.1.14
+  lottie: ^3.1.2
+  flutter_vector_icons: ^2.0.0
+  fluttertoast: ^8.2.8
 
 dev_dependencies:
   flutter_test:
@@ -28,3 +36,12 @@ dev_dependencies:
 flutter:
 
   uses-material-design: true
+
+  # Assets
+  assets:
+
+    # Environment Variables
+    - .env
+
+    # Animations
+    - assets/anim/
