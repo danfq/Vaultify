@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_vector_icons/flutter_vector_icons.dart';
 import 'package:get/route_manager.dart';
 import 'package:settings_ui/settings_ui.dart';
+import 'package:vaultify/util/services/data/local.dart';
 import 'package:vaultify/util/theming/controller.dart';
 import 'package:vaultify/util/widgets/main.dart';
 
@@ -15,6 +16,10 @@ class Settings extends StatefulWidget {
 class _SettingsState extends State<Settings> {
   ///Current Theme
   bool currentTheme = ThemeController.current(context: Get.context!);
+
+  //Security
+  int pinCode = LocalData.boxData(box: "security")["pin"] ?? 0000;
+  bool bioLock = LocalData.boxData(box: "security")["bio_lock"] ?? false;
 
   @override
   Widget build(BuildContext context) {
@@ -46,6 +51,43 @@ class _SettingsState extends State<Settings> {
                       currentTheme = mode;
                     });
                   },
+                ),
+              ],
+            ),
+
+            //Security
+            SettingsSection(
+              title: const Text("Security"),
+              tiles: [
+                //PIN Code
+                SettingsTile.navigation(
+                  leading: const Icon(Ionicons.ellipsis_horizontal),
+                  title: const Text("PIN Code"),
+                ),
+
+                //Biometric Lock
+                SettingsTile.switchTile(
+                  leading: const Icon(Ionicons.finger_print),
+                  initialValue: bioLock,
+                  onToggle: (context) {
+                    //Update UI
+                    setState(() {
+                      bioLock = !bioLock;
+                    });
+                  },
+                  title: const Text("Biometric Lock"),
+                ),
+              ],
+            ),
+
+            //Premium
+            SettingsSection(
+              title: const Text("Premium"),
+              tiles: [
+                //Vaultify Premium
+                SettingsTile.navigation(
+                  leading: const Icon(Ionicons.shield),
+                  title: const Text("Vaultify Premium"),
                 ),
               ],
             ),

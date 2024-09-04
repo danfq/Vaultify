@@ -4,7 +4,13 @@ import 'package:path_provider/path_provider.dart';
 ///Local Data
 class LocalData {
   ///Hive Boxes
-  static final _boxes = <String>["intro", "user", "settings", "passwords"];
+  static final _boxes = <String>[
+    "intro",
+    "user",
+    "settings",
+    "passwords",
+    "security",
+  ];
 
   ///Initialize Hive Storage
   static Future<void> init() async {
