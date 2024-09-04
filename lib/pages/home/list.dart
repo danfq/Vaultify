@@ -4,6 +4,7 @@ import 'package:get/route_manager.dart';
 import 'package:sensitive_clipboard/sensitive_clipboard.dart';
 import 'package:swipeable_button_view/swipeable_button_view.dart';
 import 'package:vaultify/util/models/item.dart';
+import 'package:vaultify/util/services/data/local.dart';
 import 'package:vaultify/util/services/data/remote.dart';
 import 'package:vaultify/util/services/encryption/handler.dart';
 import 'package:vaultify/util/services/toast/handler.dart';
@@ -144,10 +145,30 @@ class _ItemsListState extends State<ItemsList> {
                                           child: SwipeableButtonView(
                                             onFinish: () {},
                                             onWaitingProcess: () async {
-                                              //Delete Item
+                                              //Delete Remote Item
                                               await RemoteData.deleteDataByID(
                                                 table: "passwords",
                                                 id: item.id,
+                                              );
+
+                                              //Local Items
+                                              final List localItems =
+                                                  LocalData.boxData(
+                                                              box: "passwords")[
+                                                          "list"] ??
+                                                      [];
+
+                                              //Remove Local Item
+                                              localItems.removeWhere(
+                                                (itemData) =>
+                                                    itemData["id"] == item.id,
+                                              );
+
+                                              //Update Local Items
+                                              await LocalData.updateValue(
+                                                box: "passwords",
+                                                item: "list",
+                                                value: localItems,
                                               );
 
                                               //Close Sheet
