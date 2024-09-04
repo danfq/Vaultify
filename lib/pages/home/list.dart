@@ -3,7 +3,6 @@ import 'package:flutter_vector_icons/flutter_vector_icons.dart';
 import 'package:get/route_manager.dart';
 import 'package:sensitive_clipboard/sensitive_clipboard.dart';
 import 'package:vaultify/util/models/item.dart';
-import 'package:vaultify/util/services/data/local.dart';
 import 'package:vaultify/util/services/data/remote.dart';
 import 'package:vaultify/util/services/encryption/handler.dart';
 import 'package:vaultify/util/services/toast/handler.dart';

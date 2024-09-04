@@ -1,7 +1,6 @@
 import 'package:adaptive_theme/adaptive_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:get/route_manager.dart';
-import 'package:vaultify/pages/vaultify.dart';
 import 'package:vaultify/util/services/main.dart';
 import 'package:vaultify/util/theming/themes.dart';
 

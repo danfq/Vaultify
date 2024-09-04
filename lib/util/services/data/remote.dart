@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:vaultify/util/services/account/handler.dart';
-import 'package:vaultify/util/services/data/local.dart';
 
 ///Remote Data
 class RemoteData {
