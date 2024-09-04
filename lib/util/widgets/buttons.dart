@@ -29,4 +29,32 @@ class Buttons {
       ),
     );
   }
+
+  ///Elevated with Icon
+  static ElevatedButton elevatedIcon({
+    required String text,
+    required IconData icon,
+    required VoidCallback onTap,
+  }) {
+    return ElevatedButton.icon(
+      onPressed: onTap,
+      style: ElevatedButton.styleFrom(
+        backgroundColor:
+            _currentTheme ? const Color(0xFFFAFAFA) : const Color(0xFF1F2A33),
+      ),
+      icon: Icon(
+        icon,
+        color:
+            !_currentTheme ? const Color(0xFFFAFAFA) : const Color(0xFF1F2A33),
+      ),
+      label: Text(
+        text,
+        style: TextStyle(
+          color: !_currentTheme
+              ? const Color(0xFFFAFAFA)
+              : const Color(0xFF1F2A33),
+        ),
+      ),
+    );
+  }
 }

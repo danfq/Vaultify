@@ -22,7 +22,7 @@ class PasswordItem {
   }
 
   ///JSON Object to `PasswordItem`
-  factory PasswordItem.fromJSON(Map<String, dynamic> json) {
+  factory PasswordItem.fromJSON(Map<dynamic, dynamic> json) {
     return PasswordItem(
       id: json["id"],
       name: json["name"],

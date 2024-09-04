@@ -9,6 +9,12 @@ class AccountHandler {
   ///Supabase Auth Instance
   static final GoTrueClient _auth = Supabase.instance.client.auth;
 
+  ///Current User
+  static final User? currentUser = _auth.currentUser;
+
+  ///Cached User
+  static final Map cachedUser = LocalData.boxData(box: "user")["info"] ?? {};
+
   ///Create Account with `email`, `password` & `username`
   static Future<void> createAccount({
     required String email,
@@ -33,9 +39,11 @@ class AccountHandler {
 
             //Cache User
             await LocalData.setData(box: "user", data: {
-              "id": user?.id,
-              "email": user?.email,
-              "metadata": user?.userMetadata,
+              "info": {
+                "id": user?.id,
+                "email": user?.email,
+                "metadata": user?.userMetadata,
+              }
             });
 
             //Save User in Database
@@ -76,9 +84,11 @@ class AccountHandler {
 
             //Cache User
             await LocalData.setData(box: "user", data: {
-              "id": user?.id,
-              "email": user?.email,
-              "metadata": user?.userMetadata,
+              "info": {
+                "id": user?.id,
+                "email": user?.email,
+                "metadata": user?.userMetadata,
+              }
             });
 
             //Go Home

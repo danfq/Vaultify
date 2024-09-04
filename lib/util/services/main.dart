@@ -3,6 +3,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:vaultify/pages/account/login.dart';
 import 'package:vaultify/pages/intro/intro.dart';
 import 'package:vaultify/pages/vaultify.dart';
+import 'package:vaultify/util/services/account/handler.dart';
 import 'package:vaultify/util/services/data/env.dart';
 import 'package:vaultify/util/services/data/local.dart';
 
@@ -37,7 +38,7 @@ class MainServices {
     final introStatus = LocalData.boxData(box: "intro")["status"] ?? false;
 
     //Login Status
-    final loginStatus = Supabase.instance.client.auth.currentUser != null;
+    final loginStatus = AccountHandler.currentUser != null;
 
     //Return Initial Route
     return introStatus
