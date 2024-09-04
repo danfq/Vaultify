@@ -30,6 +30,7 @@ dependencies:
   future_progress_dialog: ^0.2.1
   encrypt: ^5.0.3
   sensitive_clipboard: ^1.0.0
+  swipeable_button_view: ^0.0.2
 
 dev_dependencies:
   flutter_test:

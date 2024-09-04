@@ -19,7 +19,7 @@ class RemoteData {
 
     //Attempt to Add Data
     try {
-      await _supabase.from(table).insert(data).select().then(
+      await _supabase.from(table).upsert(data).select().then(
         (data) {
           //Return True if Data is Not Empty
           dataAdded = data.isNotEmpty;
@@ -65,5 +65,13 @@ class RemoteData {
             return data;
           },
         );
+  }
+
+  ///Remove Data from `table` by `id`
+  static Future<void> deleteDataByID({
+    required String table,
+    required String id,
+  }) async {
+    await _supabase.from(table).delete().eq("id", id);
   }
 }

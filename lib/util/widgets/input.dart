@@ -7,6 +7,7 @@ class Input extends StatefulWidget {
     super.key,
     required this.controller,
     required this.placeholder,
+    this.enabled = true,
     this.centerPlaceholder = false,
     this.isPassword = false,
     this.isEmail = false,
@@ -19,6 +20,9 @@ class Input extends StatefulWidget {
 
   ///Placeholder
   final String placeholder;
+
+  ///Enabled
+  final bool enabled;
 
   ///Center Placeholder
   final bool centerPlaceholder;
@@ -48,6 +52,7 @@ class _InputState extends State<Input> {
     return Padding(
       padding: const EdgeInsets.all(20.0),
       child: CupertinoTextField(
+        enabled: widget.enabled,
         controller: widget.controller,
         placeholder: widget.placeholder,
         padding: const EdgeInsets.all(14.0),
