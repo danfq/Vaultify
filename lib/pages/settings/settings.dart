@@ -1,3 +1,4 @@
+import 'package:biometricx/biometricx.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_vector_icons/flutter_vector_icons.dart';
 import 'package:get/route_manager.dart';
@@ -20,6 +21,28 @@ class _SettingsState extends State<Settings> {
 
   ///Bio Lock
   bool bioLock = LocalData.boxData(box: "security")["bio_lock"] ?? false;
+
+  ///Biometric Support
+  bool? bioSupport;
+
+  ///Check Biometric Support
+  Future<void> checkBioSupport() async {
+    //Biometric Support
+    final support = await BiometricX.isEnabled;
+
+    //Set Support
+    setState(() {
+      bioSupport = support;
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    //Check Biometric Support
+    checkBioSupport();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -61,6 +84,7 @@ class _SettingsState extends State<Settings> {
               tiles: [
                 //Biometric Lock
                 SettingsTile.switchTile(
+                  enabled: bioSupport ?? false,
                   leading: const Icon(Ionicons.finger_print),
                   initialValue: bioLock,
                   onToggle: (context) {
