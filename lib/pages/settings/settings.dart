@@ -1,7 +1,7 @@
-import 'package:biometricx/biometricx.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_vector_icons/flutter_vector_icons.dart';
 import 'package:get/route_manager.dart';
+import 'package:local_auth/local_auth.dart';
 import 'package:settings_ui/settings_ui.dart';
 import 'package:vaultify/pages/settings/premium/premium.dart';
 import 'package:vaultify/util/services/data/local.dart';
@@ -28,7 +28,7 @@ class _SettingsState extends State<Settings> {
   ///Check Biometric Support
   Future<void> checkBioSupport() async {
     //Biometric Support
-    final support = await BiometricX.isEnabled;
+    final support = await LocalAuthentication().isDeviceSupported();
 
     //Set Support
     setState(() {

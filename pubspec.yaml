@@ -34,8 +34,8 @@ dependencies:
   pinput: ^5.0.0
   flutter_stripe: ^11.0.0
   http: ^1.2.2
-  biometricx: ^0.0.2
   native_auth: ^1.0.6
+  local_auth: ^2.3.0
 
 dev_dependencies:
   flutter_test:
