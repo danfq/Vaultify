@@ -18,8 +18,7 @@ class _SettingsState extends State<Settings> {
   ///Current Theme
   bool currentTheme = ThemeController.current(context: Get.context!);
 
-  //Security
-  int pinCode = LocalData.boxData(box: "security")["pin"] ?? 0000;
+  ///Bio Lock
   bool bioLock = LocalData.boxData(box: "security")["bio_lock"] ?? false;
 
   @override
@@ -60,12 +59,6 @@ class _SettingsState extends State<Settings> {
             SettingsSection(
               title: const Text("Security"),
               tiles: [
-                //PIN Code
-                SettingsTile.navigation(
-                  leading: const Icon(Ionicons.ellipsis_horizontal),
-                  title: const Text("PIN Code"),
-                ),
-
                 //Biometric Lock
                 SettingsTile.switchTile(
                   leading: const Icon(Ionicons.finger_print),
@@ -75,6 +68,13 @@ class _SettingsState extends State<Settings> {
                     setState(() {
                       bioLock = !bioLock;
                     });
+
+                    //Set Bio Lock Status
+                    LocalData.updateValue(
+                      box: "security",
+                      item: "bio_lock",
+                      value: bioLock,
+                    );
                   },
                   title: const Text("Biometric Lock"),
                 ),

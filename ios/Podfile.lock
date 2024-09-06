@@ -7,6 +7,11 @@ PODS:
   - fluttertoast (0.0.2):
     - Flutter
     - Toast
+  - local_auth_darwin (0.0.1):
+    - Flutter
+    - FlutterMacOS
+  - local_auth_ios (0.0.1):
+    - Flutter
   - path_provider_foundation (0.0.1):
     - Flutter
     - FlutterMacOS
@@ -24,6 +29,8 @@ DEPENDENCIES:
   - Flutter (from `Flutter`)
   - flutter_keyboard_visibility (from `.symlinks/plugins/flutter_keyboard_visibility/ios`)
   - fluttertoast (from `.symlinks/plugins/fluttertoast/ios`)
+  - local_auth_darwin (from `.symlinks/plugins/local_auth_darwin/darwin`)
+  - local_auth_ios (from `.symlinks/plugins/local_auth_ios/ios`)
   - path_provider_foundation (from `.symlinks/plugins/path_provider_foundation/darwin`)
   - sensitive_clipboard (from `.symlinks/plugins/sensitive_clipboard/ios`)
   - shared_preferences_foundation (from `.symlinks/plugins/shared_preferences_foundation/darwin`)
@@ -42,6 +49,10 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/flutter_keyboard_visibility/ios"
   fluttertoast:
     :path: ".symlinks/plugins/fluttertoast/ios"
+  local_auth_darwin:
+    :path: ".symlinks/plugins/local_auth_darwin/darwin"
+  local_auth_ios:
+    :path: ".symlinks/plugins/local_auth_ios/ios"
   path_provider_foundation:
     :path: ".symlinks/plugins/path_provider_foundation/darwin"
   sensitive_clipboard:
@@ -56,6 +67,8 @@ SPEC CHECKSUMS:
   Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
   flutter_keyboard_visibility: 0339d06371254c3eb25eeb90ba8d17dca8f9c069
   fluttertoast: e9a18c7be5413da53898f660530c56f35edfba9c
+  local_auth_darwin: 66e40372f1c29f383a314c738c7446e2f7fdadc3
+  local_auth_ios: 5046a18c018dd973247a0564496c8898dbb5adf9
   path_provider_foundation: 2b6b4c569c0fb62ec74538f866245ac84301af46
   sensitive_clipboard: d4866e5d176581536c27bb1618642ee83adca986
   shared_preferences_foundation: fcdcbc04712aee1108ac7fda236f363274528f78

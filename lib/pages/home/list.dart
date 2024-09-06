@@ -8,7 +8,6 @@ import 'package:vaultify/util/services/data/local.dart';
 import 'package:vaultify/util/services/data/remote.dart';
 import 'package:vaultify/util/services/encryption/handler.dart';
 import 'package:vaultify/util/services/toast/handler.dart';
-import 'package:vaultify/util/theming/controller.dart';
 import 'package:vaultify/util/widgets/buttons.dart';
 
 class ItemsList extends StatefulWidget {

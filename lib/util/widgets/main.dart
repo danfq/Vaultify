@@ -9,7 +9,7 @@ class MainWidgets {
     Widget? title,
     bool? allowBack = true,
     bool? centerTitle = true,
-    Color? backgroundColor,
+    Color? backgroundColor = Colors.transparent,
     Widget? leading,
     VoidCallback? onBack,
     List<Widget>? actions,
