@@ -68,6 +68,12 @@ class _GetPremiumState extends State<GetPremium> {
                 ),
               ),
             ),
+
+            //Spacing
+            const SizedBox(height: 20.0),
+
+            //Thanks
+            Text(premiumStatus ?? false ? "Thanks for your support!" : ""),
           ],
         ),
       ),
