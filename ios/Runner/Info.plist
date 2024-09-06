@@ -6,6 +6,9 @@
 	<key>NSFaceIDUsageDescription</key>
 	<string>Biometric Lock</string>
 
+	<key>NSCameraUsageDescription</key>
+	<string>Biometric Lock</string>
+
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
