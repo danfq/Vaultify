@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_vector_icons/flutter_vector_icons.dart';
 import 'package:get/route_manager.dart';
 import 'package:settings_ui/settings_ui.dart';
+import 'package:vaultify/pages/settings/premium/premium.dart';
 import 'package:vaultify/util/services/data/local.dart';
 import 'package:vaultify/util/theming/controller.dart';
 import 'package:vaultify/util/widgets/main.dart';
@@ -88,6 +89,7 @@ class _SettingsState extends State<Settings> {
                 SettingsTile.navigation(
                   leading: const Icon(Ionicons.shield),
                   title: const Text("Vaultify Premium"),
+                  onPressed: (context) => Get.to(() => const GetPremium()),
                 ),
               ],
             ),
