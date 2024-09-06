@@ -12,9 +12,10 @@ class Buttons {
   static ElevatedButton elevated({
     required String text,
     required VoidCallback onTap,
+    bool? enabled,
   }) {
     return ElevatedButton(
-      onPressed: onTap,
+      onPressed: enabled ?? true ? onTap : null,
       style: ElevatedButton.styleFrom(
         backgroundColor:
             _currentTheme ? const Color(0xFFFAFAFA) : const Color(0xFF1F2A33),
@@ -35,9 +36,10 @@ class Buttons {
     required String text,
     required IconData icon,
     required VoidCallback onTap,
+    bool? enabled,
   }) {
     return ElevatedButton.icon(
-      onPressed: onTap,
+      onPressed: enabled ?? true ? onTap : null,
       style: ElevatedButton.styleFrom(
         backgroundColor:
             _currentTheme ? const Color(0xFFFAFAFA) : const Color(0xFF1F2A33),

@@ -15,6 +15,26 @@ class AccountHandler {
   ///Cached User
   static final Map cachedUser = LocalData.boxData(box: "user")["info"] ?? {};
 
+  ///Get User Data
+  static Future<Map> getUserData() async {
+    //Check Current User
+    if (currentUser != null) {
+      //User Data
+      final userData = await Supabase.instance.client
+          .from("users")
+          .select()
+          .eq(
+            "id",
+            currentUser!.id,
+          )
+          .limit(1);
+
+      return userData[0];
+    } else {
+      return {};
+    }
+  }
+
   ///Create Account with `email`, `password` & `username`
   static Future<void> createAccount({
     required String email,

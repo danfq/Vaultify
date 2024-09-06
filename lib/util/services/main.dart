@@ -5,6 +5,7 @@ import 'package:vaultify/pages/intro/intro.dart';
 import 'package:vaultify/pages/security/unlock.dart';
 import 'package:vaultify/pages/vaultify.dart';
 import 'package:vaultify/util/services/account/handler.dart';
+import 'package:vaultify/util/services/account/premium.dart';
 import 'package:vaultify/util/services/data/env.dart';
 import 'package:vaultify/util/services/data/local.dart';
 
@@ -16,6 +17,7 @@ class MainServices {
   ///- Environment Variables (DotEnv).
   ///- Local Data (Hive).
   ///- Remote Data (Supabase).
+  ///- Stripe.
   static Future<void> init() async {
     //Widgets Binding
     WidgetsFlutterBinding.ensureInitialized();
@@ -31,6 +33,9 @@ class MainServices {
       url: EnvVars.get(name: "SUPABASE_URL"),
       anonKey: EnvVars.get(name: "SUPABASE_KEY"),
     );
+
+    //Premium
+    await PremiumHandler.init();
   }
 
   ///Initial Route

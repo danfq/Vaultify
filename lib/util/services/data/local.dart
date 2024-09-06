@@ -10,6 +10,7 @@ class LocalData {
     "settings",
     "passwords",
     "security",
+    "premium",
   ];
 
   ///Initialize Hive Storage
