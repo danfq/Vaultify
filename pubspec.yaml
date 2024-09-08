@@ -36,6 +36,7 @@ dependencies:
   http: ^1.2.2
   native_auth: ^1.0.6
   local_auth: ^2.3.0
+  package_info_plus: ^8.0.2
 
 dev_dependencies:
   flutter_test:
@@ -52,6 +53,9 @@ flutter:
 
     # Environment Variables
     - .env
+
+    # Assets
+    - assets/
 
     # Animations
     - assets/anim/

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_vector_icons/flutter_vector_icons.dart';
 import 'package:get/route_manager.dart';
 import 'package:local_auth/local_auth.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:settings_ui/settings_ui.dart';
 import 'package:vaultify/pages/settings/premium/premium.dart';
 import 'package:vaultify/util/services/data/local.dart';
@@ -25,6 +26,9 @@ class _SettingsState extends State<Settings> {
   ///Biometric Support
   bool? bioSupport;
 
+  ///Package Info
+  PackageInfo? packageInfo;
+
   ///Check Biometric Support
   Future<void> checkBioSupport() async {
     //Biometric Support
@@ -36,12 +40,24 @@ class _SettingsState extends State<Settings> {
     });
   }
 
+  ///Set Package Info
+  Future<void> setPackageInfo() async {
+    //Package Info
+    final info = await PackageInfo.fromPlatform();
+
+    //Set Package Info
+    packageInfo = info;
+  }
+
   @override
   void initState() {
     super.initState();
 
     //Check Biometric Support
     checkBioSupport();
+
+    //Set Package Info
+    setPackageInfo();
   }
 
   @override
@@ -134,7 +150,17 @@ class _SettingsState extends State<Settings> {
                   title: const Text("Licenses"),
                   onPressed: (context) {
                     Get.to(
-                      () => const LicensePage(applicationName: "Vaultify"),
+                      () => LicensePage(
+                        applicationName: packageInfo?.appName,
+                        applicationVersion: packageInfo?.version,
+                        applicationIcon: Padding(
+                          padding: const EdgeInsets.all(10.0),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(14.0),
+                            child: Image.asset("assets/logo.png", height: 80.0),
+                          ),
+                        ),
+                      ),
                     );
                   },
                 ),

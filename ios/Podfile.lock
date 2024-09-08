@@ -12,6 +12,8 @@ PODS:
     - FlutterMacOS
   - local_auth_ios (0.0.1):
     - Flutter
+  - package_info_plus (0.4.5):
+    - Flutter
   - path_provider_foundation (0.0.1):
     - Flutter
     - FlutterMacOS
@@ -67,6 +69,7 @@ DEPENDENCIES:
   - fluttertoast (from `.symlinks/plugins/fluttertoast/ios`)
   - local_auth_darwin (from `.symlinks/plugins/local_auth_darwin/darwin`)
   - local_auth_ios (from `.symlinks/plugins/local_auth_ios/ios`)
+  - package_info_plus (from `.symlinks/plugins/package_info_plus/ios`)
   - path_provider_foundation (from `.symlinks/plugins/path_provider_foundation/darwin`)
   - sensitive_clipboard (from `.symlinks/plugins/sensitive_clipboard/ios`)
   - shared_preferences_foundation (from `.symlinks/plugins/shared_preferences_foundation/darwin`)
@@ -98,6 +101,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/local_auth_darwin/darwin"
   local_auth_ios:
     :path: ".symlinks/plugins/local_auth_ios/ios"
+  package_info_plus:
+    :path: ".symlinks/plugins/package_info_plus/ios"
   path_provider_foundation:
     :path: ".symlinks/plugins/path_provider_foundation/darwin"
   sensitive_clipboard:
@@ -116,6 +121,7 @@ SPEC CHECKSUMS:
   fluttertoast: e9a18c7be5413da53898f660530c56f35edfba9c
   local_auth_darwin: 66e40372f1c29f383a314c738c7446e2f7fdadc3
   local_auth_ios: 5046a18c018dd973247a0564496c8898dbb5adf9
+  package_info_plus: 58f0028419748fad15bf008b270aaa8e54380b1c
   path_provider_foundation: 2b6b4c569c0fb62ec74538f866245ac84301af46
   sensitive_clipboard: d4866e5d176581536c27bb1618642ee83adca986
   shared_preferences_foundation: fcdcbc04712aee1108ac7fda236f363274528f78
