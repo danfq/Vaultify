@@ -52,8 +52,8 @@ class _VaultifyState extends State<Vaultify> {
           //Number of Items
           final List items = LocalData.boxData(box: "passwords")["list"] ?? [];
 
-          //Check Premium
-          if (items.length < maxItems) {
+          //Check Max Items or Premium
+          if (items.length < maxItems || premium) {
             //New Item
             final newItem = await Get.to<PasswordItem?>(() => const NewItem());
 
