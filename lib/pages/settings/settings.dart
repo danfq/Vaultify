@@ -5,6 +5,7 @@ import 'package:local_auth/local_auth.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:settings_ui/settings_ui.dart';
 import 'package:vaultify/pages/settings/premium/premium.dart';
+import 'package:vaultify/pages/settings/team/team.dart';
 import 'package:vaultify/util/services/data/local.dart';
 import 'package:vaultify/util/theming/controller.dart';
 import 'package:vaultify/util/widgets/main.dart';
@@ -66,6 +67,7 @@ class _SettingsState extends State<Settings> {
       appBar: MainWidgets.appBar(title: const Text("Settings")),
       body: SafeArea(
         child: SettingsList(
+          physics: const BouncingScrollPhysics(),
           lightTheme: SettingsThemeData(
             settingsListBackground: Theme.of(context).scaffoldBackgroundColor,
           ),
@@ -142,6 +144,7 @@ class _SettingsState extends State<Settings> {
                 SettingsTile.navigation(
                   leading: const Icon(Ionicons.ios_people),
                   title: const Text("Team"),
+                  onPressed: (context) => Get.to(() => const Team()),
                 ),
 
                 //Licenses

@@ -37,6 +37,7 @@ dependencies:
   native_auth: ^1.0.6
   local_auth: ^2.3.0
   package_info_plus: ^8.0.2
+  url_launcher: ^6.3.0
 
 dev_dependencies:
   flutter_test:
