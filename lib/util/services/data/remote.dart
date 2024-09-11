@@ -43,7 +43,7 @@ class RemoteData {
     required Function(List<Map<String, dynamic>> data) onNewData,
   }) {
     //Current User ID
-    final currentUserID = AccountHandler.cachedUser["id"];
+    final currentUserID = AccountHandler.currentUser?.id;
 
     //Null User ID
     if (currentUserID == null) {

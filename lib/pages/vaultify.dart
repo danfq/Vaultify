@@ -20,7 +20,7 @@ class Vaultify extends StatefulWidget {
 
 class _VaultifyState extends State<Vaultify> {
   ///Items
-  List items = LocalData.boxData(box: "passwords")["list"] ?? [];
+  List<Map> items = LocalData.boxData(box: "passwords")["list"] ?? [];
 
   @override
   Widget build(BuildContext context) {
