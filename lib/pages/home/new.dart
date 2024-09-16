@@ -1,15 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_vector_icons/flutter_vector_icons.dart';
 import 'package:future_progress_dialog/future_progress_dialog.dart';
 import 'package:get/route_manager.dart';
 import 'package:uuid/uuid.dart';
-import 'package:vaultify/util/models/item.dart';
+import 'package:vaultify/util/models/group.dart';
+import 'package:vaultify/util/models/password.dart';
 import 'package:vaultify/util/services/account/handler.dart';
 import 'package:vaultify/util/services/data/local.dart';
 import 'package:vaultify/util/services/data/remote.dart';
+import 'package:vaultify/util/services/groups/handler.dart';
 import 'package:vaultify/util/services/toast/handler.dart';
 import 'package:vaultify/util/widgets/buttons.dart';
 import 'package:vaultify/util/widgets/input.dart';
 import 'package:vaultify/util/widgets/main.dart';
+import 'package:animated_custom_dropdown/custom_dropdown.dart';
 
 class NewItem extends StatefulWidget {
   const NewItem({super.key});
@@ -24,6 +28,24 @@ class _NewItemState extends State<NewItem> {
 
   ///Password Controller
   final TextEditingController _passwordController = TextEditingController();
+
+  ///Groups
+  List<Group> _groups = [];
+
+  ///Selected Group
+  Group? _selectedGroup;
+
+  ///Get Groups
+  Future<void> getGroups() async {
+    await GroupsHandler.getAllGroups(
+      onNewData: (data) {
+        //Set Groups
+        setState(() {
+          _groups = data;
+        });
+      },
+    ).first;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -45,6 +67,21 @@ class _NewItemState extends State<NewItem> {
               placeholder: "Password",
               isPassword: true,
             ),
+
+            //Group Selection
+            Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: CustomDropdown.search(
+                hintText: "Group",
+                noResultFoundText: "No Groups",
+                items: _groups,
+                onChanged: (group) {
+                  setState(() {
+                    _selectedGroup = group;
+                  });
+                },
+              ),
+            ),
           ],
         ),
       ),
@@ -63,7 +100,7 @@ class _NewItemState extends State<NewItem> {
               List items = LocalData.boxData(box: "passwords")["list"] ?? [];
 
               //Password Item
-              final passwordItem = PasswordItem(
+              final passwordItem = Password(
                 id: const Uuid().v4(),
                 name: name,
                 password: password,

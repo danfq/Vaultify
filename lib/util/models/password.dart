@@ -1,5 +1,5 @@
 ///Password Item
-class PasswordItem {
+class Password {
   ///ID
   final String id;
 
@@ -10,9 +10,9 @@ class PasswordItem {
   final String password;
 
   ///Password Item
-  PasswordItem({required this.id, required this.name, required this.password});
+  Password({required this.id, required this.name, required this.password});
 
-  ///`PasswordItem` to JSON Object
+  ///`Password` to JSON Object
   Map<String, dynamic> toJSON() {
     return {
       "id": id,
@@ -21,9 +21,9 @@ class PasswordItem {
     };
   }
 
-  ///JSON Object to `PasswordItem`
-  factory PasswordItem.fromJSON(Map<dynamic, dynamic> json) {
-    return PasswordItem(
+  ///JSON Object to `Password`
+  factory Password.fromJSON(Map<dynamic, dynamic> json) {
+    return Password(
       id: json["id"],
       name: json["name"],
       password: json["password"],

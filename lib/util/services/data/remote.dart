@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:vaultify/util/services/account/handler.dart';
+import 'package:vaultify/util/services/data/local.dart';
 
 ///Remote Data
 class RemoteData {
@@ -43,28 +44,34 @@ class RemoteData {
     required Function(List<Map<String, dynamic>> data) onNewData,
   }) {
     //Current User ID
-    final currentUserID = AccountHandler.currentUser?.id;
+    final currentUserID =
+        AccountHandler.currentUser?.id ?? AccountHandler.cachedUser["id"];
 
     //Null User ID
     if (currentUserID == null) {
       return Stream.value([]);
     }
 
-    //Return Stream of Decrypted Passwords for Current User
-    return _supabase
-        .from(table)
-        .stream(primaryKey: ["id"])
-        .eq(
-          "uid",
-          currentUserID,
-        )
-        .map(
-          (data) {
-            onNewData(data);
+    //Attempt to Return Data
+    try {
+      //Return Data Stream
+      return _supabase
+          .from(table)
+          .stream(primaryKey: ["id"])
+          .eq(
+            "uid",
+            currentUserID.trim(),
+          )
+          .map(
+            (data) {
+              onNewData(data);
 
-            return data;
-          },
-        );
+              return data;
+            },
+          );
+    } on Exception catch (_) {
+      return Stream.value([]);
+    }
   }
 
   ///Remove Data from `table` by `id`

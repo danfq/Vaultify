@@ -9,6 +9,7 @@ class LocalData {
     "user",
     "settings",
     "passwords",
+    "groups",
     "security",
     "premium",
   ];
