@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_vector_icons/flutter_vector_icons.dart';
 import 'package:future_progress_dialog/future_progress_dialog.dart';
 import 'package:get/route_manager.dart';
 import 'package:uuid/uuid.dart';
@@ -37,14 +36,7 @@ class _NewItemState extends State<NewItem> {
 
   ///Get Groups
   Future<void> getGroups() async {
-    await GroupsHandler.getAllGroups(
-      onNewData: (data) {
-        //Set Groups
-        setState(() {
-          _groups = data;
-        });
-      },
-    ).first;
+    await GroupsHandler.getAllGroups(onNewData: (data) {}).first;
   }
 
   @override
@@ -94,7 +86,7 @@ class _NewItemState extends State<NewItem> {
             final name = _nameController.text.trim();
             final password = _passwordController.text.trim();
 
-            //Check Name & Password
+            //Check Name, Password & Group
             if (name.isNotEmpty && password.isNotEmpty) {
               //Items
               List items = LocalData.boxData(box: "passwords")["list"] ?? [];

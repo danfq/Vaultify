@@ -232,6 +232,7 @@ class _PasswordsListState extends State<PasswordsList> {
                   //List of Passwords
                   return AnimatedList(
                     key: _listKey,
+                    physics: const BouncingScrollPhysics(),
                     initialItemCount: passwords.length,
                     itemBuilder: (context, index, animation) {
                       final item = Password.fromJSON(passwords[index]);

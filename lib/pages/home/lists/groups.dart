@@ -1,17 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_vector_icons/flutter_vector_icons.dart';
-import 'package:get/route_manager.dart';
-import 'package:sensitive_clipboard/sensitive_clipboard.dart';
-import 'package:swipeable_button_view/swipeable_button_view.dart';
 import 'package:vaultify/util/models/group.dart';
-import 'package:vaultify/util/models/password.dart';
-import 'package:vaultify/util/services/data/local.dart';
-import 'package:vaultify/util/services/data/remote.dart';
-import 'package:vaultify/util/services/encryption/handler.dart';
 import 'package:vaultify/util/services/groups/handler.dart';
-import 'package:vaultify/util/services/toast/handler.dart';
-import 'package:vaultify/util/widgets/buttons.dart';
 
 class GroupsList extends StatefulWidget {
   const GroupsList({super.key});
@@ -21,65 +12,82 @@ class GroupsList extends StatefulWidget {
 }
 
 class _GroupsListState extends State<GroupsList> {
-  ///All Groups
+  /// All Groups
   List<Group> allGroups = [];
 
   /// Filtered Groups
-  ValueNotifier<List<Group>> filteredGroups = ValueNotifier([]);
+  List<Group> filteredGroups = [];
 
   /// Current Query
   String currentQuery = "";
 
-  /// Key for AnimatedList
-  final GlobalKey<AnimatedListState> _listKey = GlobalKey<AnimatedListState>();
-
   @override
   void initState() {
     super.initState();
+    _listenForGroupChanges();
+  }
 
-    //Set Filtered Groups
-    filteredGroups.value = allGroups;
+  /// Listen for real-time group changes from the database
+  void _listenForGroupChanges() {
+    GroupsHandler.getAllGroups(
+      onNewData: (data) {},
+    ).listen((newGroups) {
+      setState(() {
+        allGroups = List.from(newGroups);
+        _filterGroups(currentQuery); // Ensure filtering is applied to new data
+      });
+    });
   }
 
   /// Filter Groups and Passwords
   void _filterGroups(String query) {
     currentQuery = query.toLowerCase().trim();
-    filteredGroups.value = currentQuery.isEmpty
-        ? allGroups
-        : allGroups.where((group) {
-            //Group Name Match
-            final groupNameMatches =
-                group.name.toLowerCase().contains(currentQuery);
+    setState(() {
+      filteredGroups = currentQuery.isEmpty
+          ? allGroups
+          : allGroups.where((group) {
+              final groupNameMatches =
+                  group.name.toLowerCase().contains(currentQuery);
 
-            //Passwords
-            final passwords = group.passwords as List<Map<String, dynamic>>;
+              final passwords = group.passwords;
 
-            //Passwords Match
-            final passwordMatches = passwords.any((password) {
-              return password["name"].toLowerCase().contains(currentQuery);
-            });
+              final passwordMatches = passwords.any((password) {
+                return password.name.toLowerCase().contains(currentQuery);
+              });
 
-            //Return Matches
-            return groupNameMatches || passwordMatches;
-          }).toList();
+              return groupNameMatches || passwordMatches;
+            }).toList();
+    });
   }
 
-  ///Build Password Tile
-  Widget _buildListTile(BuildContext context, Group item, int index) {
+  /// Build Group Tile
+  Widget _buildListTile(BuildContext context, Group group, int index) {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Card(
         child: ListTile(
-          title: Text(item.name),
+          title: Text(group.name),
           onTap: () => {},
           trailing: IconButton.filled(
-            onPressed: () => {},
+            onPressed: () => _deleteGroup(group, index),
             color: Theme.of(context).cardColor,
             icon: const Icon(Ionicons.ios_trash_outline),
           ),
         ),
       ),
     );
+  }
+
+  /// Delete Group (remove from list)
+  void _deleteGroup(Group group, int index) async {
+    final deleted = await GroupsHandler.deleteGroup(groupID: group.id);
+
+    if (deleted) {
+      setState(() {
+        allGroups.removeAt(index);
+        _filterGroups(currentQuery); // Re-filter after deletion
+      });
+    }
   }
 
   @override
@@ -95,50 +103,21 @@ class _GroupsListState extends State<GroupsList> {
         ),
         const Divider(indent: 40.0, endIndent: 40.0, thickness: 0.4),
         Expanded(
-          child: StreamBuilder(
-            stream: GroupsHandler.getAllGroups(
-              onNewData: (data) {
-                if (mounted) {
-                  setState(() {
-                    allGroups = data;
-                    _filterGroups(currentQuery);
-                  });
-                }
-              },
-            ),
-            builder: (context, snapshot) {
-              return ValueListenableBuilder(
-                valueListenable: filteredGroups,
-                builder: (context, groups, _) {
-                  // No Groups
-                  if (groups.isEmpty) {
-                    return const Center(
-                      child: Text(
-                        "No Groups",
-                        textAlign: TextAlign.center,
-                      ),
-                    );
-                  }
-
-                  // List of Groups with Passwords
-                  return AnimatedList(
-                    key: _listKey,
-                    initialItemCount: groups.length,
-                    itemBuilder: (context, index, animation) {
-                      //Group
-                      final group = groups[index];
-
-                      //Item UI
-                      return FadeTransition(
-                        opacity: animation,
-                        child: _buildListTile(context, group, index),
-                      );
-                    },
-                  );
-                },
-              );
-            },
-          ),
+          child: filteredGroups.isEmpty
+              ? const Center(
+                  child: Text(
+                    "No Groups\nAdd One by Tapping +",
+                    textAlign: TextAlign.center,
+                  ),
+                )
+              : ListView.builder(
+                  physics: const BouncingScrollPhysics(),
+                  itemCount: filteredGroups.length,
+                  itemBuilder: (context, index) {
+                    final group = filteredGroups[index];
+                    return _buildListTile(context, group, index);
+                  },
+                ),
         ),
       ],
     );

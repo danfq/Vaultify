@@ -7,11 +7,11 @@ import 'package:vaultify/pages/home/lists/passwords.dart';
 import 'package:vaultify/pages/home/new.dart';
 import 'package:vaultify/pages/settings/premium/premium.dart';
 import 'package:vaultify/pages/settings/settings.dart';
-import 'package:vaultify/util/models/password.dart';
 import 'package:vaultify/util/services/account/premium.dart';
 import 'package:vaultify/util/services/data/env.dart';
 import 'package:vaultify/util/services/data/local.dart';
 import 'package:vaultify/util/services/groups/handler.dart';
+import 'package:vaultify/util/services/toast/handler.dart';
 import 'package:vaultify/util/widgets/buttons.dart';
 import 'package:vaultify/util/widgets/input.dart';
 import 'package:vaultify/util/widgets/main.dart';
@@ -122,7 +122,7 @@ class _VaultifyState extends State<Vaultify> {
                         Get.back();
                         Get.to(() => const GetPremium());
                       },
-                      child: const Text("Pay"),
+                      child: const Text("Get Premium"),
                     ),
                   );
                 }
@@ -165,18 +165,27 @@ class _VaultifyState extends State<Vaultify> {
                               icon: Ionicons.ios_add,
                               onTap: () async {
                                 //Group Name
-                                final groupName = nameController.text;
+                                final groupName = nameController.text.trim();
 
-                                //Add Group
-                                showDialog(
-                                  context: context,
-                                  builder: (context) {
-                                    return FutureProgressDialog(
-                                      GroupsHandler.addGroup(name: groupName),
-                                      message: const Text("Adding Group..."),
-                                    );
-                                  },
-                                );
+                                //Check Group Name
+                                if (groupName.isNotEmpty) {
+                                  //Add Group
+                                  await GroupsHandler.addGroup(
+                                    name: groupName,
+                                  ).then(
+                                    (added) {
+                                      if (added) {
+                                        ToastHandler.toast(
+                                          message: "'$groupName' Added!",
+                                        );
+                                      } else {
+                                        ToastHandler.toast(
+                                          message: "Failed to Add",
+                                        );
+                                      }
+                                    },
+                                  );
+                                }
 
                                 //Close Sheet
                                 Get.back();
