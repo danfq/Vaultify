@@ -8,14 +8,9 @@ import 'package:vaultify/util/services/account/handler.dart';
 import 'package:vaultify/util/services/account/premium.dart';
 import 'package:vaultify/util/services/data/env.dart';
 import 'package:vaultify/util/services/data/local.dart';
-import 'package:vaultify/util/services/groups/handler.dart';
 
 ///Main Services Handler
 class MainServices {
-  ///Current User ID
-  static final String? _currentUserID =
-      AccountHandler.currentUser?.id ?? AccountHandler.cachedUser["id"];
-
   ///Initialize Main Services
   ///
   ///- Widgets Binding (Flutter).

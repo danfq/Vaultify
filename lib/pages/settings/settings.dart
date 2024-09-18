@@ -4,7 +4,8 @@ import 'package:get/route_manager.dart';
 import 'package:local_auth/local_auth.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:settings_ui/settings_ui.dart';
-import 'package:vaultify/pages/settings/premium/premium.dart';
+import 'package:vaultify/pages/settings/profile/info.dart';
+import 'package:vaultify/pages/settings/profile/premium.dart';
 import 'package:vaultify/pages/settings/team/team.dart';
 import 'package:vaultify/util/services/data/local.dart';
 import 'package:vaultify/util/theming/controller.dart';
@@ -123,13 +124,20 @@ class _SettingsState extends State<Settings> {
               ],
             ),
 
-            //Premium
+            //Profile
             SettingsSection(
-              title: const Text("Premium"),
+              title: const Text("Profile"),
               tiles: [
+                //Information
+                SettingsTile.navigation(
+                  leading: const Icon(Ionicons.ios_person),
+                  title: const Text("Information"),
+                  onPressed: (context) => Get.to(() => const ProfileInfo()),
+                ),
+
                 //Vaultify Premium
                 SettingsTile.navigation(
-                  leading: const Icon(Ionicons.shield),
+                  leading: const Icon(Ionicons.ios_shield),
                   title: const Text("Vaultify Premium"),
                   onPressed: (context) => Get.to(() => const GetPremium()),
                 ),

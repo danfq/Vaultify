@@ -4,7 +4,7 @@ import 'package:get/route_manager.dart';
 import 'package:vaultify/pages/home/lists/groups.dart';
 import 'package:vaultify/pages/home/lists/passwords.dart';
 import 'package:vaultify/pages/home/new.dart';
-import 'package:vaultify/pages/settings/premium/premium.dart';
+import 'package:vaultify/pages/settings/profile/premium.dart';
 import 'package:vaultify/pages/settings/settings.dart';
 import 'package:vaultify/util/services/account/premium.dart';
 import 'package:vaultify/util/services/data/env.dart';
@@ -131,6 +131,7 @@ class _VaultifyState extends State<Vaultify> {
                 await showModalBottomSheet(
                   context: context,
                   showDragHandle: true,
+                  isScrollControlled: true,
                   builder: (context) {
                     //New Group Name Controller
                     final nameController = TextEditingController();

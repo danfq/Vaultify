@@ -67,4 +67,26 @@ class Buttons {
       child: Text(text),
     );
   }
+
+  ///Icon Button
+  static IconButton icon({
+    required IconData icon,
+    required VoidCallback onTap,
+  }) {
+    return IconButton(
+      icon: Icon(icon),
+      onPressed: onTap,
+    );
+  }
+
+  ///Filled Icon Button
+  static IconButton iconFilled({
+    required IconData icon,
+    required VoidCallback onTap,
+  }) {
+    return IconButton.filled(
+      icon: Icon(icon, color: Theme.of(Get.context!).cardColor),
+      onPressed: onTap,
+    );
+  }
 }
