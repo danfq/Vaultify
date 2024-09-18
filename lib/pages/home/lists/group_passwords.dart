@@ -4,6 +4,7 @@ import 'package:get/route_manager.dart';
 import 'package:sensitive_clipboard/sensitive_clipboard.dart';
 import 'package:swipeable_button_view/swipeable_button_view.dart';
 import 'package:vaultify/util/models/password.dart';
+import 'package:vaultify/util/services/anim/handler.dart';
 import 'package:vaultify/util/services/data/remote.dart';
 import 'package:vaultify/util/services/encryption/handler.dart';
 import 'package:vaultify/util/services/toast/handler.dart';
@@ -171,7 +172,15 @@ class _GroupPasswordsState extends State<GroupPasswords> {
                   return _buildListTile(context, password, index);
                 },
               )
-            : const Center(child: Text("No Passwords")),
+            : Center(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    AnimHandler.asset(animation: "empty", reverse: true),
+                    const Text("No Passwords"),
+                  ],
+                ),
+              ),
       ),
     );
   }

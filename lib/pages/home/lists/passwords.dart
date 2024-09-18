@@ -5,6 +5,7 @@ import 'package:get/route_manager.dart';
 import 'package:sensitive_clipboard/sensitive_clipboard.dart';
 import 'package:swipeable_button_view/swipeable_button_view.dart';
 import 'package:vaultify/util/models/password.dart';
+import 'package:vaultify/util/services/anim/handler.dart';
 import 'package:vaultify/util/services/data/local.dart';
 import 'package:vaultify/util/services/data/remote.dart';
 import 'package:vaultify/util/services/encryption/handler.dart';
@@ -214,10 +215,16 @@ class _PasswordsListState extends State<PasswordsList> {
                 builder: (context, passwords, _) {
                   //No Passwords
                   if (passwords.isEmpty) {
-                    return const Center(
-                      child: Text(
-                        "No Passwords\nAdd One by Tapping +",
-                        textAlign: TextAlign.center,
+                    return Center(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          AnimHandler.asset(animation: "empty", reverse: true),
+                          const Text(
+                            "No Passwords\nAdd One by Tapping +",
+                            textAlign: TextAlign.center,
+                          ),
+                        ],
                       ),
                     );
                   }

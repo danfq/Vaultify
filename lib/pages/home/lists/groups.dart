@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_vector_icons/flutter_vector_icons.dart';
 import 'package:get/route_manager.dart';
 import 'package:vaultify/util/models/group.dart';
+import 'package:vaultify/util/services/anim/handler.dart';
 import 'package:vaultify/util/services/groups/handler.dart';
 import 'package:vaultify/pages/home/lists/group_passwords.dart';
 
@@ -216,10 +217,16 @@ class _GroupsListState extends State<GroupsList> {
         const Divider(indent: 40.0, endIndent: 40.0, thickness: 0.4),
         Expanded(
           child: filteredGroups.isEmpty
-              ? const Center(
-                  child: Text(
-                    "No Groups\nAdd One by Tapping +",
-                    textAlign: TextAlign.center,
+              ? Center(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      AnimHandler.asset(animation: "empty", reverse: true),
+                      const Text(
+                        "No Groups\nAdd One by Tapping +",
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
                   ),
                 )
               : ListView.builder(
