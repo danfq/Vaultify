@@ -1,53 +1,33 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_vector_icons/flutter_vector_icons.dart';
 import 'package:get/route_manager.dart';
 import 'package:sensitive_clipboard/sensitive_clipboard.dart';
 import 'package:swipeable_button_view/swipeable_button_view.dart';
 import 'package:vaultify/util/models/password.dart';
-import 'package:vaultify/util/services/data/local.dart';
 import 'package:vaultify/util/services/data/remote.dart';
 import 'package:vaultify/util/services/encryption/handler.dart';
 import 'package:vaultify/util/services/toast/handler.dart';
 import 'package:vaultify/util/widgets/buttons.dart';
+import 'package:vaultify/util/widgets/main.dart';
 
-class PasswordsList extends StatefulWidget {
-  const PasswordsList({super.key});
+class GroupPasswords extends StatefulWidget {
+  const GroupPasswords({
+    super.key,
+    required this.groupName,
+    required this.passwords,
+  });
+
+  ///Group Name
+  final String groupName;
+
+  ///Passwords
+  final List<Password> passwords;
 
   @override
-  State<PasswordsList> createState() => _PasswordsListState();
+  State<GroupPasswords> createState() => _GroupPasswordsState();
 }
 
-class _PasswordsListState extends State<PasswordsList> {
-  ///All Passwords
-  List<Map<String, dynamic>> allPasswords =
-      LocalData.boxData(box: "passwords")["list"] ?? [];
-
-  ///Filtered Passwords
-  ValueNotifier<List<Map>> filteredPasswords = ValueNotifier([]);
-
-  ///Current Query
-  String currentQuery = "";
-
-  /// Key for AnimatedList
-  final GlobalKey<AnimatedListState> _listKey = GlobalKey<AnimatedListState>();
-
-  @override
-  void initState() {
-    super.initState();
-    filteredPasswords.value = allPasswords;
-  }
-
-  ///Filter Passwords
-  void _filterPasswords(String query) {
-    currentQuery = query.toLowerCase().trim();
-    filteredPasswords.value = currentQuery.isEmpty
-        ? allPasswords
-        : allPasswords.where((item) {
-            return item["name"].toLowerCase().contains(currentQuery);
-          }).toList();
-  }
-
+class _GroupPasswordsState extends State<GroupPasswords> {
   ///Build Password Tile
   Widget _buildListTile(BuildContext context, Password item, int index) {
     return Padding(
@@ -148,13 +128,13 @@ class _PasswordsListState extends State<PasswordsList> {
               //Close Sheet
               Get.back();
             },
-            activeColor: Theme.of(context).cardColor,
+            activeColor: Theme.of(Get.context!).cardColor,
             buttonWidget: const Icon(
               Ionicons.ios_chevron_forward,
               color: Colors.black,
             ),
             buttonText: "Swipe to Confirm",
-            buttontextstyle: Theme.of(context).textTheme.bodyMedium,
+            buttontextstyle: Theme.of(Get.context!).textTheme.bodyMedium,
           ),
         ),
       ],
@@ -167,80 +147,32 @@ class _PasswordsListState extends State<PasswordsList> {
     await RemoteData.deleteDataByID(table: "passwords", id: item.id);
 
     //Delete Local Password
-    final int removeIndex =
-        allPasswords.indexWhere((data) => data["id"] == item.id);
-    if (removeIndex >= 0) {
-      allPasswords.removeAt(removeIndex);
-      filteredPasswords.value = List.from(allPasswords);
-
-      // Animate removal from the AnimatedList using fade
-      _listKey.currentState?.removeItem(
-        index,
-        (context, animation) => FadeTransition(
-          opacity: animation,
-          child: _buildListTile(context, item, index),
-        ),
-        duration: const Duration(milliseconds: 300),
-      );
-    }
+    setState(() {
+      widget.passwords.removeAt(index);
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Padding(
-          padding: const EdgeInsets.all(20.0),
-          child: CupertinoSearchTextField(
-            placeholder: "Search...",
-            onChanged: _filterPasswords,
-          ),
-        ),
-        const Divider(indent: 40.0, endIndent: 40.0, thickness: 0.4),
-        Expanded(
-          child: StreamBuilder<List<Map<String, dynamic>>>(
-            stream: RemoteData.getData(
-              table: "passwords_view",
-              onNewData: (data) {
-                setState(() {
-                  allPasswords = data;
-                  _filterPasswords(currentQuery);
-                });
-              },
-            ),
-            builder: (context, snapshot) {
-              return ValueListenableBuilder(
-                valueListenable: filteredPasswords,
-                builder: (context, passwords, _) {
-                  //No Passwords
-                  if (passwords.isEmpty) {
-                    return const Center(
-                      child: Text(
-                        "No Passwords\nAdd One by Tapping +",
-                        textAlign: TextAlign.center,
-                      ),
-                    );
-                  }
+    return Scaffold(
+      appBar: MainWidgets.appBar(
+        title: Text(widget.groupName),
+      ),
+      body: SafeArea(
+        child: widget.passwords.isNotEmpty
+            ? ListView.builder(
+                physics: const BouncingScrollPhysics(),
+                itemCount: widget.passwords.length,
+                itemBuilder: (context, index) {
+                  //Password
+                  final password = widget.passwords[index];
 
-                  //List of Passwords
-                  return AnimatedList(
-                    key: _listKey,
-                    physics: const BouncingScrollPhysics(),
-                    initialItemCount: passwords.length,
-                    itemBuilder: (context, index, animation) {
-                      final item = Password.fromJSON(passwords[index]);
-                      return FadeTransition(
-                        opacity: animation,
-                        child: _buildListTile(context, item, index),
-                      );
-                    },
-                  );
+                  //UI
+                  return _buildListTile(context, password, index);
                 },
-              );
-            },
-          ),
-        ),
-      ],
+              )
+            : const Center(child: Text("No Passwords")),
+      ),
     );
   }
 }

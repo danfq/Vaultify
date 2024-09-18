@@ -8,6 +8,7 @@ import 'package:vaultify/util/services/account/handler.dart';
 import 'package:vaultify/util/services/data/local.dart';
 import 'package:vaultify/util/services/data/remote.dart';
 import 'package:vaultify/util/services/groups/handler.dart';
+import 'package:vaultify/util/services/passwords/handler.dart';
 import 'package:vaultify/util/services/toast/handler.dart';
 import 'package:vaultify/util/widgets/buttons.dart';
 import 'package:vaultify/util/widgets/input.dart';
@@ -36,7 +37,19 @@ class _NewItemState extends State<NewItem> {
 
   ///Get Groups
   Future<void> getGroups() async {
-    await GroupsHandler.getAllGroups(onNewData: (data) {}).first;
+    await GroupsHandler.getAllGroups(onNewData: (data) {
+      //Set Groups
+      setState(() {
+        _groups = data;
+      });
+    }).first;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    getGroups();
   }
 
   @override
@@ -87,10 +100,9 @@ class _NewItemState extends State<NewItem> {
             final password = _passwordController.text.trim();
 
             //Check Name, Password & Group
-            if (name.isNotEmpty && password.isNotEmpty) {
-              //Items
-              List items = LocalData.boxData(box: "passwords")["list"] ?? [];
-
+            if (name.isNotEmpty &&
+                password.isNotEmpty &&
+                _selectedGroup != null) {
               //Password Item
               final passwordItem = Password(
                 id: const Uuid().v4(),
@@ -103,14 +115,9 @@ class _NewItemState extends State<NewItem> {
                 context: context,
                 builder: (context) {
                   return FutureProgressDialog(
-                    RemoteData.addData(
-                      table: "passwords",
-                      data: {
-                        "id": passwordItem.id,
-                        "name": name,
-                        "password": password,
-                        "uid": AccountHandler.cachedUser["id"],
-                      },
+                    PasswordsHandler.addWithGroup(
+                      password: passwordItem,
+                      groupID: _selectedGroup!.id,
                     ),
                     message: const Text("Saving..."),
                   );
@@ -118,16 +125,6 @@ class _NewItemState extends State<NewItem> {
               ).then((success) async {
                 //Check Success
                 if (success) {
-                  //Add Item to List
-                  items.add(passwordItem.toJSON());
-
-                  //Update Passwords List
-                  await LocalData.updateValue(
-                    box: "passwords",
-                    item: "list",
-                    value: items,
-                  );
-
                   //Notify User
                   ToastHandler.toast(message: "Password Saved!");
 

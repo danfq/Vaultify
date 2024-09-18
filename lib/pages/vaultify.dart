@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_vector_icons/flutter_vector_icons.dart';
-import 'package:future_progress_dialog/future_progress_dialog.dart';
 import 'package:get/route_manager.dart';
 import 'package:vaultify/pages/home/lists/groups.dart';
 import 'package:vaultify/pages/home/lists/passwords.dart';

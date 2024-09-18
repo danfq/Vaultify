@@ -19,7 +19,7 @@ class PremiumHandler {
     //Attempt to Initialize Stripe
     try {
       //Set Pub Key
-      Stripe.publishableKey = EnvVars.get(name: "STRIPE_PUB_KEY");
+      Stripe.publishableKey = EnvVars.get(name: "STRIPE_PUB");
 
       //Set Merchant Identifier
       Stripe.merchantIdentifier = EnvVars.get(name: "APPLE_MER_ID");
@@ -104,7 +104,7 @@ class PremiumHandler {
       var response = await http.post(
         Uri.parse("https://api.stripe.com/v1/payment_intents"),
         headers: {
-          "Authorization": "Bearer ${EnvVars.get(name: "STRIPE_SEC_KEY")}",
+          "Authorization": "Bearer ${EnvVars.get(name: "STRIPE_SEC")}",
           "Content-Type": "application/x-www-form-urlencoded",
         },
         body: body,

@@ -59,4 +59,12 @@ class Buttons {
       ),
     );
   }
+
+  ///Text Button
+  static TextButton text({required String text, required VoidCallback onTap}) {
+    return TextButton(
+      onPressed: onTap,
+      child: Text(text),
+    );
+  }
 }

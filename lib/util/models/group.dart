@@ -10,7 +10,7 @@ class Group with CustomDropdownListFilter {
   final String name;
 
   ///Passwords
-  final List<dynamic> passwords;
+  final List<Password>? passwords;
 
   ///User ID
   final String uid;
@@ -19,7 +19,7 @@ class Group with CustomDropdownListFilter {
   Group({
     required this.id,
     required this.name,
-    required this.passwords,
+    this.passwords,
     required this.uid,
   });
 
@@ -41,6 +41,21 @@ class Group with CustomDropdownListFilter {
       "passwords": passwords,
       "uid": uid,
     };
+  }
+
+  ///Return Altered Group
+  Group copyWith({
+    String? id,
+    String? name,
+    List<Password>? passwords,
+    String? uid,
+  }) {
+    return Group(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      passwords: passwords ?? this.passwords,
+      uid: uid ?? this.uid,
+    );
   }
 
   @override
