@@ -3,10 +3,12 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_vector_icons/flutter_vector_icons.dart';
 import 'package:get/route_manager.dart';
+import 'package:vaultify/pages/home/edit_group.dart';
 import 'package:vaultify/util/models/group.dart';
 import 'package:vaultify/util/services/anim/handler.dart';
 import 'package:vaultify/util/services/groups/handler.dart';
 import 'package:vaultify/pages/home/lists/group_passwords.dart';
+import 'package:vaultify/util/widgets/buttons.dart';
 
 class GroupsList extends StatefulWidget {
   const GroupsList({super.key});
@@ -127,76 +129,115 @@ class _GroupsListState extends State<GroupsList> {
         ),
         child: Theme(
           data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
-          child: ExpansionTile(
-            title: Text(
-              group.name,
-              style: const TextStyle(fontWeight: FontWeight.bold),
-            ),
-            trailing: Icon(
-              isExpanded
-                  ? Ionicons.ios_chevron_down
-                  : Ionicons.ios_chevron_forward,
-            ),
-            onExpansionChanged: (expanded) {
-              setState(() {
-                if (expanded) {
-                  _expandedGroups.add(group.id);
-                } else {
-                  _expandedGroups.remove(group.id);
-                }
-              });
-            },
-            expandedCrossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              //See All
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Row(
-                  mainAxisSize: MainAxisSize.max,
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    GestureDetector(
-                      onTap: () => Get.to(
-                        () => GroupPasswords(
-                          groupName: group.name,
-                          passwords: group.passwords ?? [],
-                        ),
-                      )?.then((_) {
-                        setState(() {});
-                      }),
-                      child: const Text(
-                        "See All",
-                        style: TextStyle(decoration: TextDecoration.underline),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-
-              //Passwords
-              if (group.passwords == null || group.passwords!.isEmpty)
-                const ListTile(
-                  title: Text(
-                    "No Passwords",
-                    style: TextStyle(fontSize: 14.0),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(14.0),
+            child: InkWell(
+              borderRadius: BorderRadius.circular(14.0),
+              onLongPress: () async {
+                //Show Options
+                await Get.defaultDialog(
+                  title: group.name,
+                  content: const Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: Text("What would you like to do?"),
                   ),
-                  visualDensity: VisualDensity.compact,
-                )
-              else
-                ...group.passwords!.take(3).map(
-                      (password) => Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Card(
-                          child: ListTile(
-                            title: Text(
-                              password.name,
-                              style: const TextStyle(fontSize: 14.0),
+                  cancel: Buttons.text(
+                    text: "Edit Group",
+                    onTap: () async {
+                      await Get.to(() => EditGroup(group: group))?.then((_) {
+                        setState(() {});
+                      });
+
+                      //Close Dialog
+                      Get.back();
+                    },
+                  ),
+                  confirm: Buttons.elevated(
+                    text: "Delete",
+                    onTap: () async {
+                      await _deleteGroup(group, index);
+
+                      //Close Dialog
+                      Get.back();
+                    },
+                  ),
+                );
+              },
+              child: ExpansionTile(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(14.0),
+                ),
+                title: Text(
+                  group.name,
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
+                trailing: Icon(
+                  isExpanded
+                      ? Ionicons.ios_chevron_down
+                      : Ionicons.ios_chevron_forward,
+                ),
+                onExpansionChanged: (expanded) {
+                  setState(() {
+                    if (expanded) {
+                      _expandedGroups.add(group.id);
+                    } else {
+                      _expandedGroups.remove(group.id);
+                    }
+                  });
+                },
+                expandedCrossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  // See All
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.max,
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        GestureDetector(
+                          onTap: () => Get.to(
+                            () => GroupPasswords(
+                              groupName: group.name,
+                              passwords: group.passwords ?? [],
+                            ),
+                          )?.then((_) {
+                            setState(() {});
+                          }),
+                          child: const Text(
+                            "See All",
+                            style:
+                                TextStyle(decoration: TextDecoration.underline),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  // Passwords
+                  if (group.passwords == null || group.passwords!.isEmpty)
+                    const ListTile(
+                      title: Text(
+                        "No Passwords",
+                        style: TextStyle(fontSize: 14.0),
+                      ),
+                      visualDensity: VisualDensity.compact,
+                    )
+                  else
+                    ...group.passwords!.take(3).map(
+                          (password) => Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Card(
+                              child: ListTile(
+                                title: Text(
+                                  password.name,
+                                  style: const TextStyle(fontSize: 14.0),
+                                ),
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                    ),
-            ],
+                ],
+              ),
+            ),
           ),
         ),
       ),

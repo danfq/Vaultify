@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:vaultify/util/services/account/handler.dart';
-import 'package:vaultify/util/services/data/local.dart';
 
 ///Remote Data
 class RemoteData {
@@ -72,6 +71,25 @@ class RemoteData {
     } on Exception catch (_) {
       return Stream.value([]);
     }
+  }
+
+  ///Update Data by ID on Table
+  static Future<bool> updateData({
+    required String table,
+    required String id,
+    required Map data,
+  }) async {
+    //Upsert Data
+    final updated = (await _supabase
+            .from(table)
+            .upsert(data)
+            .eq("id", id)
+            .select()
+            .limit(1))
+        .isNotEmpty;
+
+    //Return if Added
+    return updated;
   }
 
   ///Remove Data from `table` by `id`
