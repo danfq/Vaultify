@@ -137,62 +137,67 @@ class _VaultifyState extends State<Vaultify> {
                     final nameController = TextEditingController();
 
                     //UI
-                    return SizedBox(
-                      width: double.infinity,
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          //Title
-                          const Text(
-                            "New Group",
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 24.0,
+                    return Padding(
+                      padding: EdgeInsets.only(
+                        bottom: MediaQuery.of(context).viewInsets.bottom,
+                      ),
+                      child: SizedBox(
+                        width: double.infinity,
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            //Title
+                            const Text(
+                              "New Group",
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 24.0,
+                              ),
                             ),
-                          ),
 
-                          //Group Name
-                          Input(
-                            controller: nameController,
-                            placeholder: "Group Name",
-                          ),
-
-                          //Save Group
-                          Padding(
-                            padding: const EdgeInsets.all(40.0),
-                            child: Buttons.elevatedIcon(
-                              text: "Add Group",
-                              icon: Ionicons.ios_add,
-                              onTap: () async {
-                                //Group Name
-                                final groupName = nameController.text.trim();
-
-                                //Check Group Name
-                                if (groupName.isNotEmpty) {
-                                  //Add Group
-                                  await GroupsHandler.addGroup(
-                                    name: groupName,
-                                  ).then(
-                                    (added) {
-                                      if (added) {
-                                        ToastHandler.toast(
-                                          message: "'$groupName' Added!",
-                                        );
-                                      } else {
-                                        ToastHandler.toast(
-                                          message: "Failed to Add",
-                                        );
-                                      }
-                                    },
-                                  );
-                                }
-
-                                //Close Sheet
-                                Get.back();
-                              },
+                            //Group Name
+                            Input(
+                              controller: nameController,
+                              placeholder: "Group Name",
                             ),
-                          ),
-                        ],
+
+                            //Save Group
+                            Padding(
+                              padding: const EdgeInsets.all(40.0),
+                              child: Buttons.elevatedIcon(
+                                text: "Add Group",
+                                icon: Ionicons.ios_add,
+                                onTap: () async {
+                                  //Group Name
+                                  final groupName = nameController.text.trim();
+
+                                  //Check Group Name
+                                  if (groupName.isNotEmpty) {
+                                    //Add Group
+                                    await GroupsHandler.addGroup(
+                                      name: groupName,
+                                    ).then(
+                                      (added) {
+                                        if (added) {
+                                          ToastHandler.toast(
+                                            message: "'$groupName' Added!",
+                                          );
+                                        } else {
+                                          ToastHandler.toast(
+                                            message: "Failed to Add",
+                                          );
+                                        }
+                                      },
+                                    );
+                                  }
+
+                                  //Close Sheet
+                                  Get.back();
+                                },
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     );
                   },
