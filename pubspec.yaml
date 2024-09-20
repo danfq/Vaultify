@@ -42,6 +42,7 @@ dependencies:
   animated_custom_dropdown: ^3.1.1
   mailto: ^2.0.0
   intl: ^0.18.1
+  simple_speed_dial: ^0.1.7
 
 dev_dependencies:
   flutter_test:

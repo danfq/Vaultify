@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_vector_icons/flutter_vector_icons.dart';
+import 'package:get/route_manager.dart';
 import 'package:settings_ui/settings_ui.dart';
 import 'package:vaultify/util/services/account/handler.dart';
+import 'package:vaultify/util/services/passwords/handler.dart';
 import 'package:vaultify/util/widgets/dialogs.dart';
 import 'package:vaultify/util/widgets/main.dart';
 import 'package:vaultify/util/widgets/buttons.dart';
@@ -15,6 +17,9 @@ class ProfileInfo extends StatefulWidget {
 }
 
 class _ProfileInfoState extends State<ProfileInfo> {
+  ///Max Passwords
+  String _maxPasswords = "";
+
   ///Get User Info
   Future<Map> getUserInfo() async {
     //User
@@ -34,6 +39,23 @@ class _ProfileInfoState extends State<ProfileInfo> {
 
     //Return Formatted Date
     return formattedDate;
+  }
+
+  ///Get Max Passwords
+  Future<void> getMaxPasswords() async {
+    //Max Passwords
+    final maxPwds = await PasswordsHandler.maxPasswords();
+
+    //Set Max Passwords
+    _maxPasswords = maxPwds;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    //Get Max Passwords
+    getMaxPasswords();
   }
 
   @override
@@ -104,6 +126,54 @@ class _ProfileInfoState extends State<ProfileInfo> {
                   );
                 }
               },
+            ),
+
+            //Passwords
+            Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: Card(
+                child: ListTile(
+                  title: const Text(
+                    "Passwords",
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  subtitle: FutureBuilder(
+                    future: PasswordsHandler.getAll(),
+                    builder: (context, snapshot) {
+                      //Connection State
+                      if (snapshot.connectionState == ConnectionState.done) {
+                        //Data
+                        final data = snapshot.data;
+
+                        //Check Data
+                        if (data != null) {
+                          return Text("${data.length} / $_maxPasswords");
+                        } else {
+                          return const Text("");
+                        }
+                      } else {
+                        return const Text("");
+                      }
+                    },
+                  ),
+                  trailing: Buttons.iconFilled(
+                    icon: Ionicons.ios_information,
+                    onTap: () {
+                      //Show Information
+                      Get.defaultDialog(
+                        title: "Max Passwords",
+                        content: const Padding(
+                          padding: EdgeInsets.all(8.0),
+                          child: Text(
+                            "For Free Users, 20 is the maximum amount of Passwords.\n\nIf you want infinite Passwords, please pay the one-time fee of 5€.",
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ),
             ),
 
             //Options
