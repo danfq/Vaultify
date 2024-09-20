@@ -15,6 +15,7 @@ import 'package:vaultify/util/widgets/buttons.dart';
 import 'package:vaultify/util/widgets/input.dart';
 import 'package:vaultify/util/widgets/main.dart';
 import 'package:salomon_bottom_bar/salomon_bottom_bar.dart';
+import 'package:simple_speed_dial/simple_speed_dial.dart';
 
 class Vaultify extends StatefulWidget {
   const Vaultify({super.key});
@@ -89,121 +90,144 @@ class _VaultifyState extends State<Vaultify> {
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _navIndex == 0
-            ? () async {
-                //Premium Status
-                final premium = await PremiumHandler.checkPremium();
+      floatingActionButton: SpeedDial(
+        closedBackgroundColor: Colors.black,
+        openBackgroundColor: Colors.white,
+        openForegroundColor: Colors.black,
+        speedDialChildren: [
+          //Import Passwords
+          SpeedDialChild(
+            child: const Icon(Ionicons.ios_download),
+            label: "Import Passwords from a file",
+            onPressed: () {},
+          ),
 
-                //Max Items
-                final int maxItems = int.parse(EnvVars.get(name: "MAX_ITEMS"));
+          //New Password
+          SpeedDialChild(
+            child: const Icon(Ionicons.ios_lock_closed),
+            label: "Create a new Password",
+            onPressed: () async {
+              //Premium Status
+              final premium = await PremiumHandler.checkPremium();
 
-                //Check Max Items or Premium (Infinite Items)
-                if (_items.length < maxItems || premium) {
-                  //New Item
-                  Get.to(() => const NewItem());
-                } else {
-                  //Notify User
-                  await Get.defaultDialog(
-                    title: "Oops!",
-                    content: const Padding(
-                      padding: EdgeInsets.all(8.0),
-                      child: Text(
-                        "You've reached the maximum Password limit.\n\nTo unlock an infinite amount, please pay the Premium one-time fee of 5€.",
+              //Max Items
+              final int maxItems = int.parse(EnvVars.get(name: "MAX_ITEMS"));
+
+              //Check Max Items or Premium (Infinite Items)
+              if (_items.length < maxItems || premium) {
+                //New Item
+                Get.to(() => const NewItem());
+              } else {
+                //Notify User
+                await Get.defaultDialog(
+                  title: "Oops!",
+                  content: const Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: Text(
+                      "You've reached the maximum Password limit.\n\nTo unlock an infinite amount, please pay the Premium one-time fee of 5€.",
+                    ),
+                  ),
+                  cancel: TextButton(
+                    onPressed: () => Get.back(),
+                    child: const Text("Cancel"),
+                  ),
+                  confirm: ElevatedButton(
+                    onPressed: () {
+                      Get.back();
+                      Get.to(() => const GetPremium());
+                    },
+                    child: const Text("Get Premium"),
+                  ),
+                );
+              }
+            },
+            closeSpeedDialOnPressed: false,
+          ),
+
+          //New Group
+          SpeedDialChild(
+            child: const Icon(Ionicons.ios_grid_outline),
+            label: "Create a new Group",
+            onPressed: () async {
+              //Show New Group Sheet
+              await showModalBottomSheet(
+                context: context,
+                showDragHandle: true,
+                isScrollControlled: true,
+                builder: (context) {
+                  //New Group Name Controller
+                  final nameController = TextEditingController();
+
+                  //UI
+                  return Padding(
+                    padding: EdgeInsets.only(
+                      bottom: MediaQuery.of(context).viewInsets.bottom,
+                    ),
+                    child: SizedBox(
+                      width: double.infinity,
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          //Title
+                          const Text(
+                            "New Group",
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 24.0,
+                            ),
+                          ),
+
+                          //Group Name
+                          Input(
+                            controller: nameController,
+                            placeholder: "Group Name",
+                          ),
+
+                          //Save Group
+                          Padding(
+                            padding: const EdgeInsets.all(40.0),
+                            child: Buttons.elevatedIcon(
+                              text: "Add Group",
+                              icon: Ionicons.ios_add,
+                              onTap: () async {
+                                //Group Name
+                                final groupName = nameController.text.trim();
+
+                                //Check Group Name
+                                if (groupName.isNotEmpty) {
+                                  //Add Group
+                                  await GroupsHandler.addGroup(
+                                    name: groupName,
+                                  ).then(
+                                    (added) {
+                                      if (added) {
+                                        ToastHandler.toast(
+                                          message: "'$groupName' Added!",
+                                        );
+                                      } else {
+                                        ToastHandler.toast(
+                                          message: "Failed to Add",
+                                        );
+                                      }
+                                    },
+                                  );
+                                }
+
+                                //Close Sheet
+                                Get.back();
+                              },
+                            ),
+                          ),
+                        ],
                       ),
-                    ),
-                    cancel: TextButton(
-                      onPressed: () => Get.back(),
-                      child: const Text("Cancel"),
-                    ),
-                    confirm: ElevatedButton(
-                      onPressed: () {
-                        Get.back();
-                        Get.to(() => const GetPremium());
-                      },
-                      child: const Text("Get Premium"),
                     ),
                   );
-                }
-              }
-            : () async {
-                //Show New Group Sheet
-                await showModalBottomSheet(
-                  context: context,
-                  showDragHandle: true,
-                  isScrollControlled: true,
-                  builder: (context) {
-                    //New Group Name Controller
-                    final nameController = TextEditingController();
-
-                    //UI
-                    return Padding(
-                      padding: EdgeInsets.only(
-                        bottom: MediaQuery.of(context).viewInsets.bottom,
-                      ),
-                      child: SizedBox(
-                        width: double.infinity,
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            //Title
-                            const Text(
-                              "New Group",
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 24.0,
-                              ),
-                            ),
-
-                            //Group Name
-                            Input(
-                              controller: nameController,
-                              placeholder: "Group Name",
-                            ),
-
-                            //Save Group
-                            Padding(
-                              padding: const EdgeInsets.all(40.0),
-                              child: Buttons.elevatedIcon(
-                                text: "Add Group",
-                                icon: Ionicons.ios_add,
-                                onTap: () async {
-                                  //Group Name
-                                  final groupName = nameController.text.trim();
-
-                                  //Check Group Name
-                                  if (groupName.isNotEmpty) {
-                                    //Add Group
-                                    await GroupsHandler.addGroup(
-                                      name: groupName,
-                                    ).then(
-                                      (added) {
-                                        if (added) {
-                                          ToastHandler.toast(
-                                            message: "'$groupName' Added!",
-                                          );
-                                        } else {
-                                          ToastHandler.toast(
-                                            message: "Failed to Add",
-                                          );
-                                        }
-                                      },
-                                    );
-                                  }
-
-                                  //Close Sheet
-                                  Get.back();
-                                },
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    );
-                  },
-                );
-              },
-        backgroundColor: Theme.of(context).colorScheme.primary,
+                },
+              );
+            },
+            closeSpeedDialOnPressed: false,
+          ),
+        ],
         child: const Icon(Ionicons.ios_add),
       ),
     );
