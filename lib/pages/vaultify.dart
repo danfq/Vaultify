@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_vector_icons/flutter_vector_icons.dart';
 import 'package:get/route_manager.dart';
+import 'package:vaultify/pages/home/import/import.dart';
 import 'package:vaultify/pages/home/lists/groups.dart';
 import 'package:vaultify/pages/home/lists/passwords.dart';
 import 'package:vaultify/pages/home/new.dart';
@@ -99,7 +100,11 @@ class _VaultifyState extends State<Vaultify> {
           SpeedDialChild(
             child: const Icon(Ionicons.ios_download),
             label: "Import Passwords from a file",
-            onPressed: () {},
+            onPressed: () async {
+              await Get.to(() => const ImportFromFile())?.then(
+                (_) => setState(() {}),
+              );
+            },
           ),
 
           //New Password
@@ -200,7 +205,7 @@ class _VaultifyState extends State<Vaultify> {
                                     name: groupName,
                                   ).then(
                                     (added) {
-                                      if (added) {
+                                      if (added != null) {
                                         ToastHandler.toast(
                                           message: "'$groupName' Added!",
                                         );

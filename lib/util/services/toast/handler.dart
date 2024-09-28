@@ -1,14 +1,15 @@
-import 'package:fluttertoast/fluttertoast.dart';
+import 'package:toastification/toastification.dart';
+import 'package:flutter/material.dart';
 
 ///Toast Handler
 class ToastHandler {
   ///Show Platform-Adaptive Toast with `message`
-  static void toast({required String message}) async {
-    await Fluttertoast.showToast(
-      msg: message,
-      toastLength: Toast.LENGTH_SHORT,
-      gravity: ToastGravity.CENTER,
-      fontSize: 16.0,
+  static void toast({
+    required String message,
+  }) {
+    toastification.show(
+      title: const Text("Heads Up!"),
+      description: Text(message),
     );
   }
 }

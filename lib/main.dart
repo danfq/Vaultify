@@ -1,6 +1,7 @@
 import 'package:adaptive_theme/adaptive_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:get/route_manager.dart';
+import 'package:toastification/toastification.dart';
 import 'package:vaultify/util/services/main.dart';
 import 'package:vaultify/util/theming/themes.dart';
 
@@ -18,10 +19,12 @@ void main() async {
       dark: Themes.dark,
       initial: AdaptiveThemeMode.system,
       builder: (light, dark) {
-        return GetMaterialApp(
-          theme: light,
-          darkTheme: dark,
-          home: initialRoute,
+        return ToastificationWrapper(
+          child: GetMaterialApp(
+            theme: light,
+            darkTheme: dark,
+            home: initialRoute,
+          ),
         );
       },
     ),

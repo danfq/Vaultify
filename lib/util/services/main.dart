@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:vaultify/pages/account/login.dart';
@@ -8,6 +10,7 @@ import 'package:vaultify/util/services/account/handler.dart';
 import 'package:vaultify/util/services/account/premium.dart';
 import 'package:vaultify/util/services/data/env.dart';
 import 'package:vaultify/util/services/data/local.dart';
+import 'package:vaultify/util/services/permissions/handler.dart';
 
 ///Main Services Handler
 class MainServices {
@@ -15,6 +18,7 @@ class MainServices {
   ///
   ///- Widgets Binding (Flutter).
   ///- Environment Variables (DotEnv).
+  ///- Permissions.
   ///- Local Data (Hive).
   ///- Remote Data (Supabase).
   ///- Stripe.
@@ -24,6 +28,11 @@ class MainServices {
 
     //Environment Variables
     await EnvVars.load();
+
+    //Permissions - Mobile Only
+    if (Platform.isAndroid || Platform.isIOS) {
+      await PermissionsHandler.requestPermissions();
+    }
 
     //Local Data
     await LocalData.init();

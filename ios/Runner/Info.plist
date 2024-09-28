@@ -9,6 +9,9 @@
 	<key>NSCameraUsageDescription</key>
 	<string>Biometric Lock</string>
 
+	<key>NSDocumentDirectoryUsageDescription</key>
+	<string>Import from File</string>
+
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>

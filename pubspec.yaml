@@ -25,7 +25,6 @@ dependencies:
   introduction_screen: ^3.1.14
   lottie: ^3.1.2
   flutter_vector_icons: ^2.0.0
-  fluttertoast: ^8.2.8
   settings_ui: ^2.0.2
   future_progress_dialog: ^0.2.1
   encrypt: ^5.0.3
@@ -43,6 +42,10 @@ dependencies:
   mailto: ^2.0.0
   intl: ^0.18.1
   simple_speed_dial: ^0.1.7
+  file_picker: ^8.1.2
+  permission_handler: ^11.3.1
+  csv: ^6.0.0
+  toastification: ^2.3.0
 
 dev_dependencies:
   flutter_test:

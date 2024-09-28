@@ -116,8 +116,9 @@ class GroupsHandler {
   }
 
   ///Add Group
-  static Future<bool> addGroup({required String name}) async {
-    if (_currentUserID == null) return false; // Safety check for null user ID
+  static Future<Group?> addGroup({required String name}) async {
+    //Safety Check When Not Logged In
+    if (_currentUserID == null) return null;
 
     //Group
     final group = Group(
@@ -134,7 +135,7 @@ class GroupsHandler {
     }).select();
 
     //Return if the group was added successfully
-    return response.isNotEmpty;
+    return response.isNotEmpty ? group : null;
   }
 
   ///Delete Group
