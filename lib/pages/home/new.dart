@@ -4,9 +4,6 @@ import 'package:get/route_manager.dart';
 import 'package:uuid/uuid.dart';
 import 'package:vaultify/util/models/group.dart';
 import 'package:vaultify/util/models/password.dart';
-import 'package:vaultify/util/services/account/handler.dart';
-import 'package:vaultify/util/services/data/local.dart';
-import 'package:vaultify/util/services/data/remote.dart';
 import 'package:vaultify/util/services/groups/handler.dart';
 import 'package:vaultify/util/services/passwords/handler.dart';
 import 'package:vaultify/util/services/toast/handler.dart';
@@ -100,9 +97,7 @@ class _NewItemState extends State<NewItem> {
             final password = _passwordController.text.trim();
 
             //Check Name, Password & Group
-            if (name.isNotEmpty &&
-                password.isNotEmpty &&
-                _selectedGroup != null) {
+            if (name.isNotEmpty && password.isNotEmpty) {
               //Password Item
               final passwordItem = Password(
                 id: const Uuid().v4(),
@@ -115,10 +110,12 @@ class _NewItemState extends State<NewItem> {
                 context: context,
                 builder: (context) {
                   return FutureProgressDialog(
-                    PasswordsHandler.addWithGroup(
-                      password: passwordItem,
-                      groupID: _selectedGroup!.id,
-                    ),
+                    _selectedGroup != null
+                        ? PasswordsHandler.addWithGroup(
+                            password: passwordItem,
+                            groupID: _selectedGroup!.id,
+                          )
+                        : PasswordsHandler.add(password: passwordItem),
                     message: const Text("Saving..."),
                   );
                 },

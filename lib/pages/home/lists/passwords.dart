@@ -235,7 +235,15 @@ class _PasswordsListState extends State<PasswordsList> {
                     physics: const BouncingScrollPhysics(),
                     initialItemCount: passwords.length,
                     itemBuilder: (context, index, animation) {
+                      //Index Out of Range
+                      if (index >= passwords.length) {
+                        return const SizedBox.shrink();
+                      }
+
+                      //Password
                       final item = Password.fromJSON(passwords[index]);
+
+                      //UI
                       return FadeTransition(
                         opacity: animation,
                         child: _buildListTile(context, item, index),

@@ -38,9 +38,6 @@ PODS:
   - Flutter (1.0.0)
   - flutter_keyboard_visibility (0.0.1):
     - Flutter
-  - fluttertoast (0.0.2):
-    - Flutter
-    - Toast
   - local_auth_darwin (0.0.1):
     - Flutter
     - FlutterMacOS
@@ -98,7 +95,6 @@ PODS:
   - StripeUICore (23.28.3):
     - StripeCore (= 23.28.3)
   - SwiftyGif (5.4.5)
-  - Toast (4.1.1)
   - url_launcher_ios (0.0.1):
     - Flutter
 
@@ -107,7 +103,6 @@ DEPENDENCIES:
   - file_picker (from `.symlinks/plugins/file_picker/ios`)
   - Flutter (from `Flutter`)
   - flutter_keyboard_visibility (from `.symlinks/plugins/flutter_keyboard_visibility/ios`)
-  - fluttertoast (from `.symlinks/plugins/fluttertoast/ios`)
   - local_auth_darwin (from `.symlinks/plugins/local_auth_darwin/darwin`)
   - local_auth_ios (from `.symlinks/plugins/local_auth_ios/ios`)
   - package_info_plus (from `.symlinks/plugins/package_info_plus/ios`)
@@ -132,7 +127,6 @@ SPEC REPOS:
     - StripePaymentsUI
     - StripeUICore
     - SwiftyGif
-    - Toast
 
 EXTERNAL SOURCES:
   app_links:
@@ -143,8 +137,6 @@ EXTERNAL SOURCES:
     :path: Flutter
   flutter_keyboard_visibility:
     :path: ".symlinks/plugins/flutter_keyboard_visibility/ios"
-  fluttertoast:
-    :path: ".symlinks/plugins/fluttertoast/ios"
   local_auth_darwin:
     :path: ".symlinks/plugins/local_auth_darwin/darwin"
   local_auth_ios:
@@ -171,7 +163,6 @@ SPEC CHECKSUMS:
   file_picker: 09aa5ec1ab24135ccd7a1621c46c84134bfd6655
   Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
   flutter_keyboard_visibility: 0339d06371254c3eb25eeb90ba8d17dca8f9c069
-  fluttertoast: e9a18c7be5413da53898f660530c56f35edfba9c
   local_auth_darwin: 66e40372f1c29f383a314c738c7446e2f7fdadc3
   local_auth_ios: 5046a18c018dd973247a0564496c8898dbb5adf9
   package_info_plus: 58f0028419748fad15bf008b270aaa8e54380b1c
@@ -190,7 +181,6 @@ SPEC CHECKSUMS:
   StripePaymentsUI: c24f990b03a68a7f6fe704b15dd487e7bb6b603e
   StripeUICore: f2d514e900c37436dc5427fdf2c29d68ab1c2935
   SwiftyGif: 706c60cf65fa2bc5ee0313beece843c8eb8194d4
-  Toast: 1f5ea13423a1e6674c4abdac5be53587ae481c4e
   url_launcher_ios: 5334b05cef931de560670eeae103fd3e431ac3fe
 
 PODFILE CHECKSUM: 819463e6a0290f5a72f145ba7cde16e8b6ef0796

@@ -123,33 +123,104 @@ class PasswordsHandler {
   static Future<Map<String, List<Password>>> _parseCSVFile(File file) async {
     //CSV Content
     final csvContents = await file.readAsString();
-    final csvRows = const CsvToListConverter().convert(csvContents);
+    final csvRows = csvContents.split("\n");
 
     //Grouped Passwords
     final Map<String, List<Password>> groupedPasswords = {};
 
     //Parse Rows (Skip Header)
-    for (final row in csvRows.skip(1)) {
-      //Password
+    for (int i = 1; i < csvRows.length; i++) {
+      // Current Row
+      final row = csvRows[i];
+
+      // Skip Empty Rows
+      if (row.isEmpty) {
+        continue;
+      }
+
+      // Split to Get Fields
+      final fields = row.split(",");
+
+      // Ensure Valid Rows Only (4 Fields)
+      if (fields.length < 4) {
+        debugPrint("Skipping invalid row: $fields");
+        continue;
+      }
+
+      // Extract Values
+      final name = fields[2]
+          .trim(); // Username should be in the username field (index 2)
+      final url = fields[1].trim(); // URL should be in the URL field (index 1)
+      final passwordValue =
+          fields[3].trim(); // Password value in the password field (index 3)
+
+      // Check URL
+      if (url.isEmpty) {
+        debugPrint("Skipping row with empty URL: $fields");
+        continue;
+      }
+
+      //Extract Site from URL
+      final site = _extractSiteFromURL(url);
+
+      //Invalid URL - Skip
+      if (site.isEmpty) {
+        debugPrint("Skipping row with invalid URL: $url");
+        continue;
+      }
+
+      //Password object
       final password = Password(
         id: const Uuid().v4(),
-        name: row[0],
-        password: row[3],
+        name: name,
+        password: passwordValue,
       );
 
-      //URL
-      final url = row[1];
-
-      //Add Password to Group
-      if (groupedPasswords.containsKey(url)) {
-        groupedPasswords[url]!.add(password);
-      } else {
-        groupedPasswords[url] = [password];
-      }
+      //Add Password to Map
+      groupedPasswords.putIfAbsent(site, () => []).add(password);
     }
+
+    //Debug
+    debugPrint(groupedPasswords.toString());
 
     //Return Grouped Passwords
     return groupedPasswords;
+  }
+
+  ///Extract Site from URL
+  static String _extractSiteFromURL(String url) {
+    //Remove HTTPS & Such
+    final uri = Uri.tryParse(url);
+
+    //Check if URI is Null
+    if (uri != null) {
+      //Return URL Without Sub-Paths
+      return uri.host;
+    }
+
+    //Return Empty String if Invalid URL
+    return "";
+  }
+
+  ///Add Password
+  static Future<bool> add({required Password password}) async {
+    //Added Status
+    bool added = false;
+
+    //Add Password
+    final addedPwd = (await _supabase.from("passwords").insert(
+      {
+        "id": password.id,
+        "name": password.name,
+        "password": password.password,
+        "uid": _currentUserID,
+      },
+    ).select())
+        .isNotEmpty;
+
+    //Return Accordingly
+    added = addedPwd;
+    return added;
   }
 
   ///Add Password with Group

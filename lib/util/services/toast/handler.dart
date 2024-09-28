@@ -10,6 +10,7 @@ class ToastHandler {
     toastification.show(
       title: const Text("Heads Up!"),
       description: Text(message),
+      autoCloseDuration: const Duration(seconds: 2),
     );
   }
 }

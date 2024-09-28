@@ -17,6 +17,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.1.1"
+  animated_expandable_fab:
+    dependency: "direct main"
+    description:
+      name: animated_expandable_fab
+      sha256: "96aa2f411ed329eb99e89b50f8a04eb2a8423eb3b9a60182f194f100741231cc"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.0.3"
   app_links:
     dependency: transitive
     description:
@@ -864,14 +872,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.4.1"
-  simple_speed_dial:
-    dependency: "direct main"
-    description:
-      name: simple_speed_dial
-      sha256: b8322649ac3a6ab1ed1153e005efe90d48e6cb5b2b4e264ca0997cf1e88006fa
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.1.7"
   sky_engine:
     dependency: transitive
     description: flutter

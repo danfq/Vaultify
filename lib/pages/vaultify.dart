@@ -1,3 +1,5 @@
+import 'package:animated_expandable_fab/expandable_fab/action_button.dart';
+import 'package:animated_expandable_fab/expandable_fab/expandable_fab.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_vector_icons/flutter_vector_icons.dart';
 import 'package:get/route_manager.dart';
@@ -11,12 +13,12 @@ import 'package:vaultify/util/services/account/premium.dart';
 import 'package:vaultify/util/services/data/env.dart';
 import 'package:vaultify/util/services/data/local.dart';
 import 'package:vaultify/util/services/groups/handler.dart';
+import 'package:vaultify/util/services/passwords/handler.dart';
 import 'package:vaultify/util/services/toast/handler.dart';
 import 'package:vaultify/util/widgets/buttons.dart';
 import 'package:vaultify/util/widgets/input.dart';
 import 'package:vaultify/util/widgets/main.dart';
 import 'package:salomon_bottom_bar/salomon_bottom_bar.dart';
-import 'package:simple_speed_dial/simple_speed_dial.dart';
 
 class Vaultify extends StatefulWidget {
   const Vaultify({super.key});
@@ -26,9 +28,6 @@ class Vaultify extends StatefulWidget {
 }
 
 class _VaultifyState extends State<Vaultify> {
-  ///Items
-  final List<Map> _items = LocalData.boxData(box: "passwords")["list"] ?? [];
-
   ///Current Index
   int _navIndex = 0;
 
@@ -91,15 +90,17 @@ class _VaultifyState extends State<Vaultify> {
           ],
         ),
       ),
-      floatingActionButton: SpeedDial(
-        closedBackgroundColor: Colors.black,
-        openBackgroundColor: Colors.white,
-        openForegroundColor: Colors.black,
-        speedDialChildren: [
-          //Import Passwords
-          SpeedDialChild(
-            child: const Icon(Ionicons.ios_download),
-            label: "Import Passwords from a file",
+      floatingActionButton: ExpandableFab(
+        distance: 100.0,
+        openIcon: const Icon(Ionicons.ios_add, color: Colors.white),
+        closeIcon: const Icon(Ionicons.ios_close_outline),
+        children: [
+          //Import from File
+          ActionButton(
+            icon: const Icon(
+              Ionicons.ios_download_outline,
+              color: Colors.white,
+            ),
             onPressed: () async {
               await Get.to(() => const ImportFromFile())?.then(
                 (_) => setState(() {}),
@@ -108,18 +109,17 @@ class _VaultifyState extends State<Vaultify> {
           ),
 
           //New Password
-          SpeedDialChild(
-            child: const Icon(Ionicons.ios_lock_closed),
-            label: "Create a new Password",
+          ActionButton(
+            icon: const Icon(
+              Ionicons.ios_lock_closed_outline,
+              color: Colors.white,
+            ),
             onPressed: () async {
-              //Premium Status
-              final premium = await PremiumHandler.checkPremium();
-
-              //Max Items
-              final int maxItems = int.parse(EnvVars.get(name: "MAX_ITEMS"));
+              //Hit Max Passwords
+              final hitMax = await PasswordsHandler.hitMax();
 
               //Check Max Items or Premium (Infinite Items)
-              if (_items.length < maxItems || premium) {
+              if (!hitMax) {
                 //New Item
                 Get.to(() => const NewItem());
               } else {
@@ -146,13 +146,14 @@ class _VaultifyState extends State<Vaultify> {
                 );
               }
             },
-            closeSpeedDialOnPressed: false,
           ),
 
           //New Group
-          SpeedDialChild(
-            child: const Icon(Ionicons.ios_grid_outline),
-            label: "Create a new Group",
+          ActionButton(
+            icon: const Icon(
+              Ionicons.ios_grid_outline,
+              color: Colors.white,
+            ),
             onPressed: () async {
               //Show New Group Sheet
               await showModalBottomSheet(
@@ -230,10 +231,8 @@ class _VaultifyState extends State<Vaultify> {
                 },
               );
             },
-            closeSpeedDialOnPressed: false,
           ),
         ],
-        child: const Icon(Ionicons.ios_add),
       ),
     );
   }

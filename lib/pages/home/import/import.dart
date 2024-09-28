@@ -1,9 +1,7 @@
 import 'dart:io';
-
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_vector_icons/flutter_vector_icons.dart';
-import 'package:future_progress_dialog/future_progress_dialog.dart';
 import 'package:get/route_manager.dart';
 import 'package:vaultify/util/services/passwords/handler.dart';
 import 'package:vaultify/util/services/toast/handler.dart';
@@ -80,7 +78,7 @@ class _ImportFromFileState extends State<ImportFromFile> {
                           //Set File Path
                           setState(() {
                             _importedFilePath.text =
-                                _fileName(path: result.files.first.path ?? "");
+                                result.files.first.path ?? "";
                           });
                         }
                       },
