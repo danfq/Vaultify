@@ -17,7 +17,7 @@ class GroupsHandler {
       AccountHandler.currentUser?.id ?? AccountHandler.cachedUser["id"];
 
   ///Get All Groups & Respective Passwords
-  static Stream<List<Group>> getAllGroups({
+  static Stream<List<Group?>> getAllGroups({
     required Function(List<Group> data) onNewData,
   }) {
     final currentUserID =

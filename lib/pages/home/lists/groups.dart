@@ -31,7 +31,7 @@ class _GroupsListState extends State<GroupsList> {
   String currentQuery = "";
 
   /// Stream Subscription
-  StreamSubscription<List<Group>>? _groupSubscription;
+  StreamSubscription<List<Group?>>? _groupSubscription;
 
   /// Set to track expanded groups
   final Set<String> _expandedGroups = {};
@@ -53,8 +53,8 @@ class _GroupsListState extends State<GroupsList> {
 
           for (var group in newGroups) {
             // Use both name and ID to ensure uniqueness
-            if (!uniqueGroups.containsKey(group.id)) {
-              uniqueGroups[group.id] = group;
+            if (!uniqueGroups.containsKey(group?.id)) {
+              uniqueGroups[group!.id] = group;
             }
           }
 

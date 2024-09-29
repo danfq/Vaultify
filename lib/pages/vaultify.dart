@@ -102,7 +102,7 @@ class _VaultifyState extends State<Vaultify> {
               color: Colors.white,
             ),
             onPressed: () async {
-              await Get.to(() => const ImportFromFile())?.then(
+              await Get.to(() => const ImportFromFile())!.then(
                 (_) => setState(() {}),
               );
             },

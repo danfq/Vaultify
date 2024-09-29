@@ -3,6 +3,7 @@ import 'package:csv/csv.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:uuid/uuid.dart';
+import 'package:vaultify/util/models/group.dart';
 import 'package:vaultify/util/models/password.dart';
 import 'package:vaultify/util/services/account/handler.dart';
 import 'package:vaultify/util/services/account/premium.dart';
@@ -53,69 +54,121 @@ class PasswordsHandler {
 
   /// Import Passwords from File
   static Future<int> importFromFile({required File file}) async {
-    //Number of Imported Passwords
+    // Number of Imported Passwords
     int importedPwds = 0;
+
+    // User Passwords
+    final usrPwds = await getAll();
+
+    // User Groups
+    final userGroups = await GroupsHandler.getAllGroups(
+      onNewData: (_) {},
+    ).first;
 
     // Check if File Exists
     if (await file.exists()) {
       // Check if File is CSV
       if (file.path.endsWith(".csv")) {
         try {
-          //Parse Passwords
+          // Parse Passwords
           final parsedData = await _parseCSVFile(file);
 
-          //Check Passwords
+          // Check Passwords
           if (parsedData.isNotEmpty) {
-            //Create Passwords & Respective Groups
+            // Create Passwords & Respective Groups
             for (final entry in parsedData.entries) {
-              //Group Name
+              // Group Name
               final groupName = entry.key;
 
-              //Passwords
+              // Passwords
               final passwords = entry.value;
 
-              //Create Group
-              await GroupsHandler.addGroup(name: groupName).then((group) async {
-                //Check Group
-                if (group != null) {
-                  //Add Passwords to Group
-                  for (final password in passwords) {
-                    await addWithGroup(password: password, groupID: group.id);
+              // Check if Group already exists
+              final groupExists =
+                  userGroups.any((group) => group?.name == groupName);
+
+              // If Group doesn't exist, create a new group
+              if (!groupExists) {
+                await GroupsHandler.addGroup(name: groupName)
+                    .then((group) async {
+                  // Check Group
+                  if (group != null) {
+                    // Add Passwords to Group
+                    for (final password in passwords) {
+                      // Check if Password already exists in the user's saved passwords
+                      final duplicate = usrPwds.any((usrPwd) =>
+                          usrPwd.name == password.name &&
+                          usrPwd.password == password.password);
+
+                      // Skip if duplicate found
+                      if (duplicate) {
+                        debugPrint(
+                            "Skipping duplicate password: ${password.name}");
+                        continue;
+                      }
+
+                      // Add password if no duplicate found
+                      await addWithGroup(password: password, groupID: group.id);
+                      importedPwds++;
+                    }
+                  } else {
+                    ToastHandler.toast(message: "Failed to Create Group");
+                    debugPrint("Failed to Create Group");
+                  }
+                });
+              } else {
+                //Check for Existing Group
+                final Group? existingGroup = userGroups.firstWhere(
+                  (group) => group?.name == groupName,
+                  orElse: () => null,
+                );
+
+                // Add Passwords to the existing group
+                for (final password in passwords) {
+                  // Check if Password already exists in the user's saved passwords
+                  final duplicate = usrPwds.any((usrPwd) =>
+                      usrPwd.name == password.name &&
+                      usrPwd.password == password.password);
+
+                  // Skip if duplicate found
+                  if (duplicate) {
+                    debugPrint("Skipping duplicate password: ${password.name}");
+                    continue;
                   }
 
-                  //Set Imported Status as True When Done
-                  importedPwds = passwords.length;
-                } else {
-                  ToastHandler.toast(message: "Failed to Create Group");
-                  debugPrint("Failed to Create Group");
-                  importedPwds = 0;
+                  // Add password if no duplicate found
+                  await addWithGroup(
+                    password: password,
+                    groupID: existingGroup!.id,
+                  );
+
+                  //Increase Imported Passwords
+                  importedPwds++;
                 }
-              });
+              }
             }
           } else {
             ToastHandler.toast(message: "No Passwords in File");
             debugPrint("No Passwords in File");
-            importedPwds = 0;
           }
         } catch (error) {
           ToastHandler.toast(message: "Error Parsing CSV: $error.");
           debugPrint("Error Parsing CSV: $error.");
-          importedPwds = 0;
         }
       } else {
         debugPrint("Invalid CSV");
 
-        //File Isn't Valid CSV - Return False
+        // File Isn't Valid CSV - Return False
         importedPwds = 0;
       }
     } else {
       debugPrint("File Doesn't Exist");
 
-      //File Doesn't Exist - Return False
+      // File Doesn't Exist - Return False
       importedPwds = 0;
     }
 
-    //Return Imported Status
+    // Return Imported Status
     return importedPwds;
   }
 
@@ -148,11 +201,9 @@ class PasswordsHandler {
       }
 
       // Extract Values
-      final name = fields[2]
-          .trim(); // Username should be in the username field (index 2)
-      final url = fields[1].trim(); // URL should be in the URL field (index 1)
-      final passwordValue =
-          fields[3].trim(); // Password value in the password field (index 3)
+      final name = fields[2].trim();
+      final url = fields[1].trim();
+      final passwordValue = fields[3].trim();
 
       // Check URL
       if (url.isEmpty) {
