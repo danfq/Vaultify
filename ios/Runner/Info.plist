@@ -12,6 +12,9 @@
 	<key>NSDocumentDirectoryUsageDescription</key>
 	<string>Import from File</string>
 
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Import from File</string>
+
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
