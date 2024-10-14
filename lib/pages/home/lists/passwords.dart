@@ -4,6 +4,7 @@ import 'package:flutter_vector_icons/flutter_vector_icons.dart';
 import 'package:get/route_manager.dart';
 import 'package:sensitive_clipboard/sensitive_clipboard.dart';
 import 'package:swipeable_button_view/swipeable_button_view.dart';
+import 'package:vaultify/pages/home/new.dart';
 import 'package:vaultify/util/models/password.dart';
 import 'package:vaultify/util/services/anim/handler.dart';
 import 'package:vaultify/util/services/data/local.dart';
@@ -11,6 +12,7 @@ import 'package:vaultify/util/services/data/remote.dart';
 import 'package:vaultify/util/services/encryption/handler.dart';
 import 'package:vaultify/util/services/toast/handler.dart';
 import 'package:vaultify/util/widgets/buttons.dart';
+import 'package:vaultify/util/widgets/items.dart';
 
 class PasswordsList extends StatefulWidget {
   const PasswordsList({super.key});
@@ -51,34 +53,27 @@ class _PasswordsListState extends State<PasswordsList> {
 
   ///Build Password Tile
   Widget _buildListTile(BuildContext context, Password item, int index) {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Card(
-        child: ListTile(
-          title: Text(item.name),
-          onTap: () => _showPasswordBottomSheet(context, item),
-          trailing: IconButton.filled(
-            onPressed: () => _showDeleteConfirmation(context, item, index),
-            color: Theme.of(context).cardColor,
-            icon: const Icon(Ionicons.ios_trash_outline),
-          ),
-        ),
-      ),
+    return Items.password(
+      password: item,
+      onTap: () => _showPasswordBottomSheet(context, item, index),
     );
   }
 
   ///Show Password Sheet
   Future<void> _showPasswordBottomSheet(
-      BuildContext context, Password item) async {
+    BuildContext context,
+    Password item,
+    int index,
+  ) async {
     await showModalBottomSheet(
       context: context,
       showDragHandle: true,
-      builder: (_) => _passwordSheetContent(item),
+      builder: (_) => _passwordSheetContent(item, index),
     );
   }
 
   ///Password Sheet Content
-  Widget _passwordSheetContent(Password item) {
+  Widget _passwordSheetContent(Password item, int index) {
     //Decoded Password
     final decodedPassword = EncryptionHandler.decodeASCII(ascii: item.password);
 
@@ -88,14 +83,59 @@ class _PasswordsListState extends State<PasswordsList> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(
-            item.name,
-            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 24.0),
+          //Name & Delete
+          Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              mainAxisSize: MainAxisSize.max,
+              children: [
+                //Name
+                Text(
+                  item.name,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 24.0,
+                  ),
+                ),
+
+                //Edit & Delete
+                Row(
+                  children: [
+                    //Edit
+                    Buttons.iconFilled(
+                      icon: Ionicons.ios_pencil_outline,
+                      onTap: () {
+                        Get.back();
+                        Get.to(() => NewItem(password: item));
+                      },
+                    ),
+
+                    //Delete
+                    Buttons.iconFilled(
+                      icon: Ionicons.ios_trash_bin_outline,
+                      backgroundColor: Colors.red,
+                      onTap: () {
+                        //Close Sheet
+                        Get.back();
+
+                        //Deletion Confirmation
+                        _showDeleteConfirmation(context, item, index);
+                      },
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
+
+          //Password
           Padding(
             padding: const EdgeInsets.all(40.0),
-            child: Text(decodedPassword),
+            child: Text(decodedPassword ?? ""),
           ),
+
+          //Copy to Clipboard
           Padding(
             padding: const EdgeInsets.all(40.0),
             child: Buttons.elevatedIcon(

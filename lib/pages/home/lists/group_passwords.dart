@@ -9,6 +9,7 @@ import 'package:vaultify/util/services/data/remote.dart';
 import 'package:vaultify/util/services/encryption/handler.dart';
 import 'package:vaultify/util/services/toast/handler.dart';
 import 'package:vaultify/util/widgets/buttons.dart';
+import 'package:vaultify/util/widgets/items.dart';
 import 'package:vaultify/util/widgets/main.dart';
 
 class GroupPasswords extends StatefulWidget {
@@ -31,19 +32,9 @@ class GroupPasswords extends StatefulWidget {
 class _GroupPasswordsState extends State<GroupPasswords> {
   ///Build Password Tile
   Widget _buildListTile(BuildContext context, Password item, int index) {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Card(
-        child: ListTile(
-          title: Text(item.name),
-          onTap: () => _showPasswordBottomSheet(context, item),
-          trailing: IconButton.filled(
-            onPressed: () => _showDeleteConfirmation(context, item, index),
-            color: Theme.of(context).cardColor,
-            icon: const Icon(Ionicons.ios_trash_outline),
-          ),
-        ),
-      ),
+    return Items.password(
+      password: item,
+      onTap: () => _showPasswordBottomSheet(context, item),
     );
   }
 
@@ -74,7 +65,7 @@ class _GroupPasswordsState extends State<GroupPasswords> {
           ),
           Padding(
             padding: const EdgeInsets.all(40.0),
-            child: Text(decodedPassword),
+            child: Text(decodedPassword ?? ""),
           ),
           Padding(
             padding: const EdgeInsets.all(40.0),

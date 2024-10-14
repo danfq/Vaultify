@@ -60,9 +60,6 @@ class _GroupsListState extends State<GroupsList> {
 
           allGroups = uniqueGroups.values.toList();
           _filterGroups(currentQuery);
-
-          // Debug
-          print("All Groups: $allGroups");
         });
       }
     });
@@ -123,7 +120,6 @@ class _GroupsListState extends State<GroupsList> {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Card(
-        elevation: 0,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(14.0),
         ),

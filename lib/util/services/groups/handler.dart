@@ -6,6 +6,7 @@ import 'package:vaultify/util/models/group.dart';
 import 'package:vaultify/util/models/password.dart';
 import 'package:vaultify/util/services/account/handler.dart';
 import 'package:flutter/material.dart';
+import 'package:vaultify/util/services/passwords/handler.dart';
 import 'package:vaultify/util/widgets/buttons.dart';
 
 class GroupsHandler {
@@ -15,6 +16,47 @@ class GroupsHandler {
   ///Current User
   static final _currentUserID =
       AccountHandler.currentUser?.id ?? AccountHandler.cachedUser["id"];
+
+  ///Get Group by ID
+  static Future<Group> getByID({required String id}) async {
+    //Matching Group
+    final matGroup =
+        (await _supabase.from("groups").select().eq("id", id).limit(1))[0];
+
+    //Parse Group
+    final group = Group(
+      id: id,
+      name: matGroup["name"],
+      uid: matGroup["uid"],
+    );
+
+    //Return Group
+    return group;
+  }
+
+  ///Get Password Group
+  static Future<Group?> getPasswordGroup({
+    required String passwordID,
+  }) async {
+    //Get Relationship
+    final matRel = (await _supabase
+        .from("group_passwords")
+        .select()
+        .eq("password_id", passwordID)
+        .limit(1));
+
+    //Check Matching Relationship
+    if (matRel.isNotEmpty) {
+      //Get Matching Group
+      final matGroup = await getByID(id: matRel[0]["group_id"]);
+
+      //Return Group
+      return matGroup;
+    }
+
+    //Return Null
+    return null;
+  }
 
   ///Get All Groups & Respective Passwords
   static Stream<List<Group?>> getAllGroups({
@@ -32,22 +74,18 @@ class GroupsHandler {
         .stream(primaryKey: ["id"])
         .eq("uid", currentUserID)
         .asyncMap((groupsData) async {
-          debugPrint("Raw groups data: $groupsData");
-
           if (groupsData.isEmpty) {
             debugPrint("Empty groupsData.");
             onNewData([]);
             return [];
           }
 
-          final groupsMap =
-              <String, Group>{}; // Map to store the latest group by name
+          final groupsMap = <String, Group>{};
 
           final groups = groupsData
               .map((json) {
                 try {
                   if (json.isEmpty) {
-                    debugPrint("Empty Group Data");
                     return null;
                   }
                   return Group(
@@ -57,15 +95,12 @@ class GroupsHandler {
                     uid: _currentUserID,
                   );
                 } catch (error) {
-                  debugPrint("Error Parsing Group: $error.");
                   return null;
                 }
               })
               .where((group) => group != null)
               .cast<Group>()
               .toList();
-
-          debugPrint("Parsed groups: $groups");
 
           for (var group in groups) {
             groupsMap[group.name] = group;
@@ -74,23 +109,18 @@ class GroupsHandler {
           // Fetch password data securely from passwords_view
           final groupPasswordsData = await _supabase
               .from("group_passwords")
-              .select(
-                  "group_id, password_id, passwords_view(*)") // Changed to passwords_view
+              .select("group_id, password_id, passwords_view(*)")
               .eq("uid", currentUserID);
-
-          debugPrint("Raw group passwords data: $groupPasswordsData");
 
           final passwordMap = <String, List<Password>>{};
 
           for (var relation in groupPasswordsData) {
             final groupId = relation["group_id"] as String?;
-            final passwordData =
-                relation["passwords_view"]; // Changed to passwords_view
+            final passwordData = relation["passwords_view"];
 
             if (groupId != null && passwordData != null) {
               try {
-                final password =
-                    Password.fromJSON(passwordData); // Decoding password
+                final password = Password.fromJSON(passwordData);
 
                 if (passwordMap.containsKey(groupId)) {
                   passwordMap[groupId]!.add(password);
@@ -107,8 +137,6 @@ class GroupsHandler {
             final updatedPasswords = passwordMap[group.id] ?? [];
             return group.copyWith(passwords: updatedPasswords);
           }).toList();
-
-          debugPrint("Updated groups: $updatedGroups");
 
           onNewData(updatedGroups);
           return updatedGroups;

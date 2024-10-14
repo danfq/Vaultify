@@ -103,7 +103,8 @@ class PasswordsHandler {
                       // Skip if duplicate found
                       if (duplicate) {
                         debugPrint(
-                            "Skipping duplicate password: ${password.name}");
+                          "Skipping duplicate password: ${password.name}",
+                        );
                         continue;
                       }
 
@@ -259,7 +260,7 @@ class PasswordsHandler {
     bool added = false;
 
     //Add Password
-    final addedPwd = (await _supabase.from("passwords").insert(
+    final addedPwd = (await _supabase.from("passwords").upsert(
       {
         "id": password.id,
         "name": password.name,
@@ -274,6 +275,60 @@ class PasswordsHandler {
     return added;
   }
 
+  ///Get By ID
+  static Future<Password> getByID({required String id}) async {
+    //Matching Password
+    final matPwd =
+        (await _supabase.from("passwords").select().eq("id", id).limit(1))[0];
+
+    //Parse Password
+    final password = Password.fromJSON(matPwd);
+
+    //Return Password
+    return password;
+  }
+
+  ///Update Password based on ID
+  ///
+  ///Will also update Group, if provided.
+  static Future<bool> updateByID({
+    required Password password,
+    Group? group,
+  }) async {
+    //Updated
+    bool updated = false;
+    PostgrestList? groupUpdated;
+
+    //Update Password
+    final updatedPwd = await _supabase
+        .from("passwords")
+        .update(password.toJSON())
+        .eq("id", password.id)
+        .select();
+
+    //Updated Group - if provided
+    if (group != null) {
+      groupUpdated = (await _supabase
+          .from("group_passwords")
+          .update(
+            {
+              "group_id": group.id,
+              "password_id": password.id,
+              "uid": _currentUserID,
+            },
+          )
+          .eq("password_id", password.id)
+          .select());
+    }
+
+    //Set Updated Status
+    updated =
+        updatedPwd.isNotEmpty && (group == null || groupUpdated!.isNotEmpty);
+
+    //Return Updated Status
+    return updated;
+  }
+
   ///Add Password with Group
   static Future<bool> addWithGroup({
     required Password password,
@@ -283,7 +338,7 @@ class PasswordsHandler {
     bool added = false;
 
     //Add Password
-    final addedPwd = (await _supabase.from("passwords").insert(
+    final addedPwd = (await _supabase.from("passwords").upsert(
       {
         "id": password.id,
         "name": password.name,
@@ -294,7 +349,7 @@ class PasswordsHandler {
         .isNotEmpty;
 
     //Add Relationship with Group
-    final addedRel = (await _supabase.from("group_passwords").insert({
+    final addedRel = (await _supabase.from("group_passwords").upsert({
       "group_id": groupID,
       "password_id": password.id,
       "uid": _currentUserID,

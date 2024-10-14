@@ -4,6 +4,7 @@ import 'package:get/route_manager.dart';
 import 'package:uuid/uuid.dart';
 import 'package:vaultify/util/models/group.dart';
 import 'package:vaultify/util/models/password.dart';
+import 'package:vaultify/util/services/encryption/handler.dart';
 import 'package:vaultify/util/services/groups/handler.dart';
 import 'package:vaultify/util/services/passwords/handler.dart';
 import 'package:vaultify/util/services/toast/handler.dart';
@@ -13,7 +14,10 @@ import 'package:vaultify/util/widgets/main.dart';
 import 'package:animated_custom_dropdown/custom_dropdown.dart';
 
 class NewItem extends StatefulWidget {
-  const NewItem({super.key});
+  const NewItem({super.key, this.password});
+
+  ///Item
+  final Password? password;
 
   @override
   State<NewItem> createState() => _NewItemState();
@@ -32,8 +36,11 @@ class _NewItemState extends State<NewItem> {
   ///Selected Group
   Group? _selectedGroup;
 
+  ///Password
+  Password? _password;
+
   ///Get Groups
-  Future<void> getGroups() async {
+  Future<void> _getGroups() async {
     await GroupsHandler.getAllGroups(onNewData: (data) {
       //Set Groups
       setState(() {
@@ -42,17 +49,53 @@ class _NewItemState extends State<NewItem> {
     }).first;
   }
 
+  ///Get Matching Group for Password
+  Future<void> _getMatchingGroup(String? passwordID) async {
+    //Matching Group
+    final matGroup = await GroupsHandler.getPasswordGroup(
+      passwordID: passwordID ?? "",
+    );
+
+    //Set Group
+    setState(() {
+      _selectedGroup = matGroup;
+    });
+  }
+
+  ///Check Password
+  Future<void> _checkPassword() async {
+    //Password
+    final password = widget.password;
+
+    //Check if Password was Passed On
+    if (password != null) {
+      //Set Password Data
+      setState(() {
+        _password = password;
+      });
+
+      //Get Matching Group
+      await _getMatchingGroup(_password?.id);
+    }
+  }
+
   @override
   void initState() {
     super.initState();
 
-    getGroups();
+    //Get Groups
+    _getGroups();
+
+    //Check Password
+    _checkPassword();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: MainWidgets.appBar(title: const Text("New Password")),
+      appBar: MainWidgets.appBar(
+        title: const Text("Password"),
+      ),
       body: SafeArea(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -60,13 +103,15 @@ class _NewItemState extends State<NewItem> {
             //Name
             Input(
               controller: _nameController,
-              placeholder: "Name (e.g. Google)",
+              placeholder: _password?.name ?? "Name (e.g. Google)",
             ),
 
             //Password
             Input(
               controller: _passwordController,
-              placeholder: "Password",
+              placeholder:
+                  EncryptionHandler.decodeASCII(ascii: _password?.password) ??
+                      "Password",
               isPassword: true,
             ),
 
@@ -74,7 +119,7 @@ class _NewItemState extends State<NewItem> {
             Padding(
               padding: const EdgeInsets.all(20.0),
               child: CustomDropdown.search(
-                hintText: "Group",
+                hintText: _selectedGroup?.name ?? "Group",
                 noResultFoundText: "No Groups",
                 items: _groups,
                 onChanged: (group) {
@@ -99,11 +144,25 @@ class _NewItemState extends State<NewItem> {
             //Check Name, Password & Group
             if (name.isNotEmpty && password.isNotEmpty) {
               //Password Item
-              final passwordItem = Password(
-                id: const Uuid().v4(),
-                name: name,
-                password: password,
-              );
+              Password passwordItem;
+
+              //Password Item
+              if (_password != null) {
+                passwordItem = Password(
+                  id: _password!.id,
+                  name: name,
+                  password: password,
+                );
+              } else {
+                passwordItem = Password(
+                  id: const Uuid().v4(),
+                  name: name,
+                  password: password,
+                );
+              }
+
+              //Debug
+              debugPrint(passwordItem.toJSON().toString());
 
               //Save Password
               await showDialog(
@@ -111,11 +170,18 @@ class _NewItemState extends State<NewItem> {
                 builder: (context) {
                   return FutureProgressDialog(
                     _selectedGroup != null
-                        ? PasswordsHandler.addWithGroup(
-                            password: passwordItem,
-                            groupID: _selectedGroup!.id,
-                          )
-                        : PasswordsHandler.add(password: passwordItem),
+                        ? _password == null
+                            ? PasswordsHandler.addWithGroup(
+                                password: passwordItem,
+                                groupID: _selectedGroup!.id,
+                              )
+                            : PasswordsHandler.updateByID(
+                                password: _password!,
+                                group: _selectedGroup,
+                              )
+                        : _password == null
+                            ? PasswordsHandler.add(password: passwordItem)
+                            : PasswordsHandler.updateByID(password: _password!),
                     message: const Text("Saving..."),
                   );
                 },
