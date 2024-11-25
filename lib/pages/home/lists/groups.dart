@@ -253,8 +253,17 @@ class _GroupsListState extends State<GroupsList> {
         ),
         const Divider(indent: 40.0, endIndent: 40.0, thickness: 0.4),
         Expanded(
-          child: filteredGroups.isEmpty
-              ? Center(
+          child: StreamBuilder<List<Group?>>(
+            stream: GroupsHandler.getAllGroups(onNewData: (data) {}),
+            builder: (context, snapshot) {
+              // Show empty container while loading
+              if (!snapshot.hasData) {
+                return const SizedBox.shrink();
+              }
+
+              // Show empty animation only if we have data but groups list is empty
+              if (snapshot.hasData && filteredGroups.isEmpty) {
+                return Center(
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -265,19 +274,34 @@ class _GroupsListState extends State<GroupsList> {
                       ),
                     ],
                   ),
-                )
-              : ListView.builder(
+                );
+              }
+
+              return TweenAnimationBuilder<double>(
+                duration: const Duration(milliseconds: 500),
+                tween: Tween(begin: 1.0, end: 0.0),
+                curve: Curves.easeOutCubic,
+                builder: (context, value, child) {
+                  return Transform.translate(
+                    offset: Offset(0, 50 * value),
+                    child: Opacity(
+                      opacity: 1 - value,
+                      child: child,
+                    ),
+                  );
+                },
+                child: ListView.builder(
                   key: _listKey,
                   physics: const BouncingScrollPhysics(),
                   itemCount: filteredGroups.length,
                   itemBuilder: (context, index) {
-                    //Group
                     final group = filteredGroups[index];
-
-                    //Group UI
                     return _buildListTile(context, group, index);
                   },
                 ),
+              );
+            },
+          ),
         ),
       ],
     );

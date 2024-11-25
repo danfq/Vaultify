@@ -250,11 +250,16 @@ class _PasswordsListState extends State<PasswordsList> {
               },
             ),
             builder: (context, snapshot) {
+              // Show empty container while loading
+              if (!snapshot.hasData) {
+                return const SizedBox.shrink();
+              }
+
               return ValueListenableBuilder(
                 valueListenable: filteredPasswords,
                 builder: (context, passwords, _) {
-                  //No Passwords
-                  if (passwords.isEmpty) {
+                  // Show empty animation only if we have data but passwords list is empty
+                  if (snapshot.hasData && passwords.isEmpty) {
                     return Center(
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
@@ -269,26 +274,34 @@ class _PasswordsListState extends State<PasswordsList> {
                     );
                   }
 
-                  //List of Passwords
-                  return AnimatedList(
-                    key: _listKey,
-                    physics: const BouncingScrollPhysics(),
-                    initialItemCount: passwords.length,
-                    itemBuilder: (context, index, animation) {
-                      //Index Out of Range
-                      if (index >= passwords.length) {
-                        return const SizedBox.shrink();
-                      }
-
-                      //Password
-                      final item = Password.fromJSON(passwords[index]);
-
-                      //UI
-                      return FadeTransition(
-                        opacity: animation,
-                        child: _buildListTile(context, item, index),
+                  return TweenAnimationBuilder<double>(
+                    duration: const Duration(milliseconds: 500),
+                    tween: Tween(begin: 1.0, end: 0.0),
+                    curve: Curves.easeOutCubic,
+                    builder: (context, value, child) {
+                      return Transform.translate(
+                        offset: Offset(0, 50 * value),
+                        child: Opacity(
+                          opacity: 1 - value,
+                          child: child,
+                        ),
                       );
                     },
+                    child: AnimatedList(
+                      key: _listKey,
+                      physics: const BouncingScrollPhysics(),
+                      initialItemCount: passwords.length,
+                      itemBuilder: (context, index, animation) {
+                        if (index >= passwords.length) {
+                          return const SizedBox.shrink();
+                        }
+                        final item = Password.fromJSON(passwords[index]);
+                        return FadeTransition(
+                          opacity: animation,
+                          child: _buildListTile(context, item, index),
+                        );
+                      },
+                    ),
                   );
                 },
               );
