@@ -9,9 +9,6 @@ import 'package:vaultify/pages/home/lists/passwords.dart';
 import 'package:vaultify/pages/home/new.dart';
 import 'package:vaultify/pages/settings/profile/premium.dart';
 import 'package:vaultify/pages/settings/settings.dart';
-import 'package:vaultify/util/services/account/premium.dart';
-import 'package:vaultify/util/services/data/env.dart';
-import 'package:vaultify/util/services/data/local.dart';
 import 'package:vaultify/util/services/groups/handler.dart';
 import 'package:vaultify/util/services/passwords/handler.dart';
 import 'package:vaultify/util/services/toast/handler.dart';
@@ -67,28 +64,13 @@ class _VaultifyState extends State<Vaultify> {
         ],
       ),
       body: SafeArea(child: body()),
-      bottomNavigationBar: ClipRRect(
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(14.0)),
-        child: SalomonBottomBar(
-          backgroundColor: Theme.of(context).dialogBackgroundColor,
-          selectedItemColor: Theme.of(context).iconTheme.color,
-          currentIndex: _navIndex,
-          onTap: (index) {
-            setState(() {
-              _navIndex = index;
-            });
-          },
-          items: [
-            SalomonBottomBarItem(
-              icon: const Icon(Ionicons.ios_list_outline),
-              title: const Text("All Passwords"),
-            ),
-            SalomonBottomBarItem(
-              icon: const Icon(Ionicons.ios_grid_outline),
-              title: const Text("Groups"),
-            ),
-          ],
-        ),
+      bottomNavigationBar: MainWidgets.bottomNav(
+        navIndex: _navIndex,
+        onChanged: (index) {
+          setState(() {
+            _navIndex = index;
+          });
+        },
       ),
       floatingActionButton: ExpandableFab(
         distance: 100.0,

@@ -1,3 +1,6 @@
+import 'dart:io';
+
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_vector_icons/flutter_vector_icons.dart';
 import 'package:get/route_manager.dart';
@@ -49,5 +52,82 @@ class MainWidgets {
         ),
       ),
     );
+  }
+
+  ///Bottom Navigation Bar
+  static Widget bottomNav({
+    required int navIndex,
+    required Function(int index) onChanged,
+  }) {
+    //Android
+    if (Platform.isAndroid) {
+      return ClipRRect(
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(14.0)),
+        child: BottomNavigationBar(
+          backgroundColor: Theme.of(Get.context!).dialogBackgroundColor,
+          selectedItemColor: Theme.of(Get.context!).iconTheme.color,
+          currentIndex: navIndex,
+          onTap: (index) {
+            onChanged(index);
+          },
+          items: const [
+            //Home
+            BottomNavigationBarItem(
+              icon: Padding(
+                padding: EdgeInsets.all(8.0),
+                child: Icon(Ionicons.ios_list_outline),
+              ),
+              label: "All Passwords",
+            ),
+
+            //Offline
+            BottomNavigationBarItem(
+              icon: Padding(
+                padding: EdgeInsets.all(8.0),
+                child: Icon(Ionicons.ios_grid_outline),
+              ),
+              label: "Groups",
+            ),
+          ],
+        ),
+      );
+    }
+
+    //iOS
+    if (Platform.isIOS) {
+      return ClipRRect(
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(14.0)),
+        child: CupertinoTabBar(
+          activeColor: Theme.of(Get.context!).iconTheme.color,
+          currentIndex: navIndex,
+          onTap: (index) {
+            onChanged(index);
+          },
+          height: 60.0,
+          items: const [
+            //Home
+            BottomNavigationBarItem(
+              icon: Padding(
+                padding: EdgeInsets.all(8.0),
+                child: Icon(Ionicons.ios_list_outline),
+              ),
+              label: "All Passwords",
+            ),
+
+            //Offline
+            BottomNavigationBarItem(
+              icon: Padding(
+                padding: EdgeInsets.all(8.0),
+                child: Icon(Ionicons.ios_grid_outline),
+              ),
+              label: "Groups",
+            ),
+          ],
+        ),
+      );
+    }
+
+    //Default
+    return Container();
   }
 }
