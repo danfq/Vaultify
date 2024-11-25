@@ -3,6 +3,7 @@ import 'package:flutter_vector_icons/flutter_vector_icons.dart';
 import 'package:get/route_manager.dart';
 import 'package:settings_ui/settings_ui.dart';
 import 'package:vaultify/util/services/account/handler.dart';
+import 'package:vaultify/util/services/data/env.dart';
 import 'package:vaultify/util/services/passwords/handler.dart';
 import 'package:vaultify/util/widgets/dialogs.dart';
 import 'package:vaultify/util/widgets/main.dart';
@@ -18,7 +19,7 @@ class ProfileInfo extends StatefulWidget {
 
 class _ProfileInfoState extends State<ProfileInfo> {
   ///Max Passwords
-  String _maxPasswords = "";
+  String _maxPasswords = EnvVars.get(name: "MAX_ITEMS");
 
   ///Get User Info
   Future<Map> getUserInfo() async {
@@ -47,7 +48,9 @@ class _ProfileInfoState extends State<ProfileInfo> {
     final maxPwds = await PasswordsHandler.maxPasswords();
 
     //Set Max Passwords
-    _maxPasswords = maxPwds;
+    setState(() {
+      _maxPasswords = maxPwds;
+    });
   }
 
   @override
@@ -197,9 +200,12 @@ class _ProfileInfoState extends State<ProfileInfo> {
                         title: const Text("Change Username"),
                         description: const Text("Change your username."),
                         onPressed: (context) async {
-                          await UtilDialog.changeUserData(
+                          final changed = await UtilDialog.changeUserData(
                             type: DialogType.username,
-                          ).then((_) => setState(() {}));
+                          );
+                          if (changed == true) {
+                            setState(() {});
+                          }
                         },
                       ),
 
