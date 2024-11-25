@@ -191,12 +191,14 @@ class _NewItemState extends State<NewItem> {
                                 groupID: _selectedGroup!.id,
                               )
                             : PasswordsHandler.updateByID(
-                                password: _password!,
+                                password: passwordItem,
                                 group: _selectedGroup,
                               )
                         : _password == null
                             ? PasswordsHandler.add(password: passwordItem)
-                            : PasswordsHandler.updateByID(password: _password!),
+                            : PasswordsHandler.updateByID(
+                                password: passwordItem,
+                              ),
                     message: const Text("Saving..."),
                   );
                 },
