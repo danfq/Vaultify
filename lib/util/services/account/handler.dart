@@ -30,14 +30,14 @@ class AccountHandler {
   ///Get User Data
   static Future<Map> getUserData() async {
     //Check Current User
-    if (currentUser != null) {
+    if (cachedUser.isNotEmpty) {
       //User Data
       final userData = await Supabase.instance.client
           .from("users")
           .select()
           .eq(
             "id",
-            currentUser!.id,
+            cachedUser["id"],
           )
           .limit(1);
 

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_vector_icons/flutter_vector_icons.dart';
 import 'package:future_progress_dialog/future_progress_dialog.dart';
 import 'package:get/route_manager.dart';
 import 'package:uuid/uuid.dart';
@@ -119,6 +120,20 @@ class _NewItemState extends State<NewItem> {
             Padding(
               padding: const EdgeInsets.all(20.0),
               child: CustomDropdown.search(
+                decoration: const CustomDropdownDecoration(
+                  listItemStyle: TextStyle(color: Colors.black),
+                  hintStyle: TextStyle(color: Colors.black),
+                  noResultFoundStyle: TextStyle(color: Colors.black),
+                  headerStyle: TextStyle(color: Colors.black),
+                  searchFieldDecoration: SearchFieldDecoration(
+                    prefixIcon: Icon(
+                      Ionicons.ios_search_outline,
+                      color: Colors.black,
+                    ),
+                    hintStyle: TextStyle(color: Colors.black),
+                    textStyle: TextStyle(color: Colors.black),
+                  ),
+                ),
                 hintText: _selectedGroup?.name ?? "Group",
                 noResultFoundText: "No Groups",
                 items: _groups,

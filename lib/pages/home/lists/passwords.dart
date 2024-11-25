@@ -83,7 +83,7 @@ class _PasswordsListState extends State<PasswordsList> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          //Name & Delete
+          //Name & Edit & Delete
           Padding(
             padding: const EdgeInsets.all(20.0),
             child: Row(
