@@ -19,7 +19,7 @@ class PremiumHandler {
     //Attempt to Initialize Stripe
     try {
       //Set Pub Key
-      Stripe.publishableKey = EnvVars.get(name: "STRIPE_PUB");
+      Stripe.publishableKey = EnvVars.get(name: "STRIPE_PUB_KEY");
 
       //Set Merchant Identifier
       Stripe.merchantIdentifier = EnvVars.get(name: "APPLE_MER_ID");
@@ -38,36 +38,35 @@ class PremiumHandler {
     //Payment ID
     final paymentID = const Uuid().v4();
 
-    //Payment Intent
-    var intent = await _paymentIntent(id: paymentID);
-
-    //Initialize Payment Sheet
-    await _stripe.initPaymentSheet(
-      paymentSheetParameters: SetupPaymentSheetParameters(
-        paymentIntentClientSecret: intent["client_secret"],
-        googlePay: const PaymentSheetGooglePay(merchantCountryCode: "PT"),
-        applePay: const PaymentSheetApplePay(merchantCountryCode: "PT"),
-        style: ThemeController.current(context: Get.context!)
-            ? ThemeMode.dark
-            : ThemeMode.light,
-        merchantDisplayName: "DanFQ",
-      ),
-    );
-
-    //Attempt to Receive Payment
     try {
+      //Payment Intent
+      final intent = await _paymentIntent(id: paymentID);
+
+      // Verify we have a client secret
+      if (intent["client_secret"] == null) {
+        throw Exception("Failed to Get Payment Client Secret");
+      }
+
+      //Initialize Payment Sheet
+      await _stripe.initPaymentSheet(
+        paymentSheetParameters: SetupPaymentSheetParameters(
+          paymentIntentClientSecret: intent["client_secret"],
+          googlePay: const PaymentSheetGooglePay(merchantCountryCode: "PT"),
+          applePay: const PaymentSheetApplePay(merchantCountryCode: "PT"),
+          style: ThemeController.current(context: Get.context!)
+              ? ThemeMode.dark
+              : ThemeMode.light,
+          merchantDisplayName: "DanFQ",
+        ),
+      );
+
       //Show Payment Sheet
-      await _stripe.presentPaymentSheet().then((_) async {
-        //Clear Intent
-        intent = null;
+      await _stripe.presentPaymentSheet();
 
-        //Set User as Premium
-        final premiumStatus = await _setUserPremium();
-
-        //Set Status
-        status = premiumStatus;
-      });
-    } on StripeException catch (_) {
+      //Set User as Premium
+      status = await _setUserPremium();
+    } catch (e) {
+      debugPrint('Payment error: $e');
       status = false;
     }
 
@@ -104,7 +103,7 @@ class PremiumHandler {
       var response = await http.post(
         Uri.parse("https://api.stripe.com/v1/payment_intents"),
         headers: {
-          "Authorization": "Bearer ${EnvVars.get(name: "STRIPE_SEC")}",
+          "Authorization": "Bearer ${EnvVars.get(name: "STRIPE_SEC_KEY")}",
           "Content-Type": "application/x-www-form-urlencoded",
         },
         body: body,
