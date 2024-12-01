@@ -260,16 +260,31 @@ class _PasswordsListState extends State<PasswordsList> {
                 builder: (context, passwords, _) {
                   // Show empty animation only if we have data but passwords list is empty
                   if (snapshot.hasData && passwords.isEmpty) {
-                    return Center(
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          AnimHandler.asset(animation: "empty", reverse: true),
-                          const Text(
-                            "No Passwords\nAdd One by Tapping +",
-                            textAlign: TextAlign.center,
+                    return TweenAnimationBuilder<double>(
+                      duration: const Duration(milliseconds: 500),
+                      tween: Tween(begin: 1.0, end: 0.0),
+                      curve: Curves.easeOutCubic,
+                      builder: (context, value, child) {
+                        return Transform.translate(
+                          offset: Offset(0, 30 * value),
+                          child: Opacity(
+                            opacity: 1 - value,
+                            child: child,
                           ),
-                        ],
+                        );
+                      },
+                      child: Center(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            AnimHandler.asset(
+                                animation: "empty", reverse: true),
+                            const Text(
+                              "No Passwords\nAdd One by Tapping +",
+                              textAlign: TextAlign.center,
+                            ),
+                          ],
+                        ),
                       ),
                     );
                   }

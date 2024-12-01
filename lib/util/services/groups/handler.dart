@@ -6,7 +6,6 @@ import 'package:vaultify/util/models/group.dart';
 import 'package:vaultify/util/models/password.dart';
 import 'package:vaultify/util/services/account/handler.dart';
 import 'package:flutter/material.dart';
-import 'package:vaultify/util/services/passwords/handler.dart';
 import 'package:vaultify/util/widgets/buttons.dart';
 
 class GroupsHandler {
@@ -75,7 +74,6 @@ class GroupsHandler {
         .eq("uid", currentUserID)
         .asyncMap((groupsData) async {
           if (groupsData.isEmpty) {
-            debugPrint("Empty groupsData.");
             onNewData([]);
             return [];
           }

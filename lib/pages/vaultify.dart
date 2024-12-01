@@ -15,7 +15,6 @@ import 'package:vaultify/util/services/toast/handler.dart';
 import 'package:vaultify/util/widgets/buttons.dart';
 import 'package:vaultify/util/widgets/input.dart';
 import 'package:vaultify/util/widgets/main.dart';
-import 'package:salomon_bottom_bar/salomon_bottom_bar.dart';
 
 class Vaultify extends StatefulWidget {
   const Vaultify({super.key});
@@ -29,7 +28,7 @@ class _VaultifyState extends State<Vaultify> {
   int _navIndex = 0;
 
   ///Body
-  Widget body() {
+  Widget _body() {
     switch (_navIndex) {
       //All Passwords
       case 0:
@@ -63,7 +62,7 @@ class _VaultifyState extends State<Vaultify> {
           ),
         ],
       ),
-      body: SafeArea(child: body()),
+      body: SafeArea(child: _body()),
       bottomNavigationBar: MainWidgets.bottomNav(
         navIndex: _navIndex,
         onChanged: (index) {

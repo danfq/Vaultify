@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:get/route_manager.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:vaultify/util/services/account/handler.dart';
-import 'package:vaultify/util/services/data/local.dart';
 import 'package:vaultify/util/widgets/buttons.dart';
 import 'package:vaultify/util/widgets/input.dart';
 
