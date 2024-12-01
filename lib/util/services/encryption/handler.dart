@@ -1,12 +1,9 @@
 import 'dart:math';
 import 'dart:typed_data';
 import 'dart:convert';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:pointycastle/api.dart';
-import 'package:pointycastle/asymmetric/api.dart';
 import 'package:pointycastle/export.dart';
-import 'package:pointycastle/key_generators/api.dart';
-import 'package:pointycastle/random/fortuna_random.dart';
 import 'package:pointycastle/asn1.dart';
 
 ///Encryption Handler
@@ -14,8 +11,14 @@ class EncryptionHandler {
   ///Flutter Secure Storage
   static const _secureStorage = FlutterSecureStorage();
 
+  ///Public Key
+  static get publicKey async => await _secureStorage.read(key: "publicKey");
+
+  ///Private Key
+  static get privateKey async => await _secureStorage.read(key: "privateKey");
+
   ///Encrypt Message
-  static Future<String> encryptMessage({
+  static Future<String> encryptPassword({
     required String message,
     required RSAPublicKey publicKey,
   }) async {
@@ -23,7 +26,7 @@ class EncryptionHandler {
     final encryptor = RSAEngine();
 
     //Init Encryptor
-    encryptor.init(true, PublicKeyParameter(publicKey));
+    encryptor.init(true, PublicKeyParameter<RSAPublicKey>(publicKey));
 
     //Encrypt Message
     final encrypted = encryptor.process(
@@ -35,23 +38,32 @@ class EncryptionHandler {
   }
 
   ///Decrypt Message
-  static Future<String> decryptMessage({
+  static Future<String> decryptPassword({
     required String encryptedMessage,
     required RSAPrivateKey privateKey,
   }) async {
-    //Decryptor
-    final decryptor = RSAEngine();
+    try {
+      //Decode ASCII first
+      final decodedMessage = decodeASCII(ascii: encryptedMessage);
+      if (decodedMessage == null) throw Exception("Failed to decode ASCII");
 
-    //Init Decryptor
-    decryptor.init(false, PrivateKeyParameter(privateKey));
+      //Decryptor
+      final decryptor = RSAEngine();
 
-    //Decrypt Message
-    final decrypted = decryptor.process(
-      base64.decode(encryptedMessage),
-    );
+      //Init Decryptor
+      decryptor.init(false, PrivateKeyParameter<RSAPrivateKey>(privateKey));
 
-    //Return Decrypted Message
-    return utf8.decode(decrypted);
+      //Decrypt Message
+      final decrypted = decryptor.process(
+        base64.decode(decodedMessage),
+      );
+
+      //Return Decrypted Message
+      return utf8.decode(decrypted);
+    } catch (e) {
+      debugPrint("Decryption error: $e");
+      throw Exception("Failed to decrypt message: $e");
+    }
   }
 
   ///Save Key Pair Securely
@@ -167,11 +179,67 @@ class EncryptionHandler {
     return '''-----BEGIN RSA PRIVATE KEY-----\n$dataBase64\n-----END RSA PRIVATE KEY-----''';
   }
 
+  ///PEM to Public Key
+  static RSAPublicKey pemToPublicKey(String pemString) {
+    //Remove Headers & Footers
+    final rows = pemString.split('\n');
+    final key = rows
+        .where(
+            (row) => !row.contains("-----BEGIN") && !row.contains("-----END"))
+        .join("");
+
+    //Decode Base64
+    final bytes = base64.decode(key);
+    final asn1Parser = ASN1Parser(bytes);
+    final topLevelSeq = asn1Parser.nextObject() as ASN1Sequence;
+
+    //Extract Modulus & Exponent
+    final modulus = (topLevelSeq.elements![0] as ASN1Integer).integer;
+    final exponent = (topLevelSeq.elements![1] as ASN1Integer).integer;
+
+    //Return Public Key
+    return RSAPublicKey(modulus!, exponent!);
+  }
+
+  ///PEM to Private Key
+  static RSAPrivateKey pemToPrivateKey(String pemString) {
+    try {
+      final rows = pemString.split("\n");
+      final key = rows
+          .where(
+              (row) => !row.contains("-----BEGIN") && !row.contains("-----END"))
+          .join("");
+
+      final bytes = base64.decode(key);
+      final asn1Parser = ASN1Parser(bytes);
+      final topLevelSeq = asn1Parser.nextObject() as ASN1Sequence;
+
+      // Extract Components
+      final modulus = (topLevelSeq.elements![1] as ASN1Integer).integer!;
+      final privateExponent =
+          (topLevelSeq.elements![3] as ASN1Integer).integer!;
+      final p = (topLevelSeq.elements![4] as ASN1Integer).integer!;
+      final q = (topLevelSeq.elements![5] as ASN1Integer).integer!;
+
+      // Return Private Key
+      return RSAPrivateKey(modulus, privateExponent, p, q);
+    } catch (e) {
+      debugPrint("Error parsing private key: $e");
+      throw Exception("Failed to parse private key: $e");
+    }
+  }
+
   ///Decrypt Hex to Readable String
   static String? decodeASCII({required String? ascii}) {
-    //Return an Empty String if the Input is Null or Empty
+    //Return null if the Input is Null or Empty
     if (ascii == null || ascii.isEmpty) {
       return null;
+    }
+
+    //Check if the string is already plain text (not hex-encoded)
+    if (!ascii.contains(r"\x") &&
+        !RegExp(r"^[0-9A-Fa-f\s]+$").hasMatch(ascii)) {
+      return ascii; // Return as-is if it's plain text
     }
 
     //Remove \x Prefix
@@ -182,15 +250,32 @@ class EncryptionHandler {
 
     //Convert Every Two Hexadecimal Characters into a Byte
     for (int i = 0; i < ascii.length; i += 2) {
-      //Hex Byte
-      String hexByte = ascii.substring(i, i + 2);
+      try {
+        //Ensure we have enough characters remaining
+        if (i + 2 > ascii.length) break;
 
-      //Byte
-      int byte = int.parse(hexByte, radix: 16);
+        //Hex Byte
+        String hexByte = ascii.substring(i, i + 2);
 
-      //Add Byte to Buffer
-      bytes.add(byte);
+        //Validate hex characters
+        if (!RegExp(r"^[0-9A-Fa-f]{2}$").hasMatch(hexByte)) {
+          debugPrint("Invalid hex characters found: $hexByte");
+          continue;
+        }
+
+        //Byte
+        int byte = int.parse(hexByte, radix: 16);
+
+        //Add Byte to Buffer
+        bytes.add(byte);
+      } catch (e) {
+        debugPrint("Error parsing hex byte: $e");
+        continue;
+      }
     }
+
+    //Return null if no valid bytes were parsed
+    if (bytes.isEmpty) return null;
 
     //Return Readable String
     return String.fromCharCodes(bytes);

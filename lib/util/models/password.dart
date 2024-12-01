@@ -17,7 +17,7 @@ class Password {
     return {
       "id": id,
       "name": name,
-      "password": password,
+      "encrypted_password": password,
     };
   }
 
@@ -26,7 +26,7 @@ class Password {
     return Password(
       id: json["id"],
       name: json["name"],
-      password: json["password"],
+      password: json["encrypted_password"],
     );
   }
 }

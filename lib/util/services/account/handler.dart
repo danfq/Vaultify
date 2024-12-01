@@ -8,6 +8,7 @@ import 'package:vaultify/pages/account/login.dart';
 import 'package:vaultify/pages/vaultify.dart';
 import 'package:vaultify/util/services/data/local.dart';
 import 'package:vaultify/util/services/data/remote.dart';
+import 'package:vaultify/util/services/encryption/handler.dart';
 import 'package:vaultify/util/services/groups/handler.dart';
 import 'package:vaultify/util/services/passwords/handler.dart';
 import 'package:vaultify/util/services/toast/handler.dart';
@@ -345,13 +346,24 @@ class AccountHandler {
     //Database
     final db = Supabase.instance.client;
 
-    //Save User in Database
+    //Generate Key Pair & Save User in Database
     try {
+      //Generate Key Pair
+      final keyPair = await EncryptionHandler.generateKeyPair();
+
+      //Save User in Database
       await db.from("users").insert({
         "id": user.id,
         "username": user.userMetadata?["username"],
         "joined": DateTime.now().millisecondsSinceEpoch,
+        "public_key": keyPair["publicKey"],
       });
+
+      //Cache Key Pair
+      await EncryptionHandler.saveKeyPairSecurely(
+        publicKey: keyPair["publicKey"] ?? "",
+        privateKey: keyPair["privateKey"] ?? "",
+      );
     } on Exception catch (error) {
       //Throw Exception
       throw Exception(error.toString());

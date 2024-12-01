@@ -39,6 +39,11 @@ class _PasswordsListState extends State<PasswordsList> {
   void initState() {
     super.initState();
     filteredPasswords.value = allPasswords;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_listKey.currentState != null) {
+        setState(() {});
+      }
+    });
   }
 
   ///Filter Passwords
@@ -74,82 +79,110 @@ class _PasswordsListState extends State<PasswordsList> {
 
   ///Password Sheet Content
   Widget _passwordSheetContent(Password item, int index) {
-    //Decoded Password
-    final decodedPassword = EncryptionHandler.decodeASCII(ascii: item.password);
+    return FutureBuilder<String>(
+      future: Future.wait<dynamic>([
+        EncryptionHandler.privateKey,
+        Future.value(item.password),
+      ]).then((values) async {
+        //Private Key
+        final privateKey = EncryptionHandler.pemToPrivateKey(values[0]);
 
-    //UI
-    return SizedBox(
-      width: double.infinity,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          //Name & Edit & Delete
-          Padding(
-            padding: const EdgeInsets.all(20.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              mainAxisSize: MainAxisSize.max,
-              children: [
-                //Name
-                Text(
-                  item.name,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 24.0,
-                  ),
-                ),
+        //Encrypted Password
+        final encryptedPassword = values[1];
 
-                //Edit & Delete
-                Row(
+        //Decrypt Password
+        return await EncryptionHandler.decryptPassword(
+          encryptedMessage: encryptedPassword,
+          privateKey: privateKey,
+        );
+      }),
+      builder: (context, snapshot) {
+        //Decoded Password
+        final decodedPassword = snapshot.data ?? "";
+
+        //UI
+        return SizedBox(
+          width: double.infinity,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              //Name & Edit & Delete
+              Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  mainAxisSize: MainAxisSize.max,
                   children: [
-                    //Edit
-                    Buttons.iconFilled(
-                      icon: Ionicons.ios_pencil_outline,
-                      onTap: () {
-                        Get.back();
-                        Get.to(() => NewItem(password: item));
-                      },
+                    //Name
+                    Text(
+                      item.name,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 24.0,
+                      ),
                     ),
 
-                    //Delete
-                    Buttons.iconFilled(
-                      icon: Ionicons.ios_trash_bin_outline,
-                      backgroundColor: Colors.red,
-                      onTap: () {
-                        //Close Sheet
-                        Get.back();
+                    //Edit & Delete
+                    Row(
+                      children: [
+                        //Edit
+                        Buttons.iconFilled(
+                          icon: Ionicons.ios_pencil_outline,
+                          onTap: () {
+                            Get.back();
+                            Get.to(
+                              () => NewItem(
+                                password: Password(
+                                  id: item.id,
+                                  name: item.name,
+                                  password: decodedPassword,
+                                ),
+                              ),
+                            );
+                          },
+                        ),
 
-                        //Deletion Confirmation
-                        _showDeleteConfirmation(context, item, index);
-                      },
+                        //Delete
+                        Buttons.iconFilled(
+                          icon: Ionicons.ios_trash_bin_outline,
+                          backgroundColor: Colors.red,
+                          onTap: () {
+                            //Close Sheet
+                            Get.back();
+
+                            //Deletion Confirmation
+                            _showDeleteConfirmation(context, item, index);
+                          },
+                        ),
+                      ],
                     ),
                   ],
                 ),
-              ],
-            ),
-          ),
+              ),
 
-          //Password
-          Padding(
-            padding: const EdgeInsets.all(40.0),
-            child: Text(decodedPassword ?? ""),
-          ),
+              //Password
+              Padding(
+                padding: const EdgeInsets.all(40.0),
+                child: Text(decodedPassword),
+              ),
 
-          //Copy to Clipboard
-          Padding(
-            padding: const EdgeInsets.all(40.0),
-            child: Buttons.elevatedIcon(
-              text: "Copy to Clipboard",
-              icon: Ionicons.ios_copy_outline,
-              onTap: () async {
-                await SensitiveClipboard.copy(decodedPassword);
-                Get.back();
-                ToastHandler.toast(message: "Copied!");
-              },
-            ),
+              //Copy to Clipboard
+              Padding(
+                padding: const EdgeInsets.all(40.0),
+                child: Buttons.elevatedIcon(
+                  text: "Copy to Clipboard",
+                  icon: Ionicons.ios_copy_outline,
+                  onTap: () async {
+                    await SensitiveClipboard.copy(decodedPassword);
+                    Get.back();
+                    ToastHandler.toast(message: "Copied!");
+                  },
+                ),
+              ),
+            ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 
@@ -241,7 +274,7 @@ class _PasswordsListState extends State<PasswordsList> {
         Expanded(
           child: StreamBuilder<List<Map<String, dynamic>>>(
             stream: RemoteData.getData(
-              table: "passwords_view",
+              table: "passwords",
               onNewData: (data) {
                 setState(() {
                   allPasswords = data;
@@ -259,32 +292,20 @@ class _PasswordsListState extends State<PasswordsList> {
                 valueListenable: filteredPasswords,
                 builder: (context, passwords, _) {
                   // Show empty animation only if we have data but passwords list is empty
-                  if (snapshot.hasData && passwords.isEmpty) {
-                    return TweenAnimationBuilder<double>(
-                      duration: const Duration(milliseconds: 500),
-                      tween: Tween(begin: 1.0, end: 0.0),
-                      curve: Curves.easeOutCubic,
-                      builder: (context, value, child) {
-                        return Transform.translate(
-                          offset: Offset(0, 30 * value),
-                          child: Opacity(
-                            opacity: 1 - value,
-                            child: child,
+                  if (passwords.isEmpty && allPasswords.isEmpty) {
+                    return Center(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          AnimHandler.asset(
+                            animation: "empty",
+                            reverse: true,
                           ),
-                        );
-                      },
-                      child: Center(
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            AnimHandler.asset(
-                                animation: "empty", reverse: true),
-                            const Text(
-                              "No Passwords\nAdd One by Tapping +",
-                              textAlign: TextAlign.center,
-                            ),
-                          ],
-                        ),
+                          const Text(
+                            "No Passwords\nAdd One by Tapping +",
+                            textAlign: TextAlign.center,
+                          ),
+                        ],
                       ),
                     );
                   }

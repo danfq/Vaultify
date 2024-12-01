@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:pointycastle/asymmetric/api.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:uuid/uuid.dart';
 import 'package:vaultify/util/models/group.dart';
@@ -7,6 +8,7 @@ import 'package:vaultify/util/models/password.dart';
 import 'package:vaultify/util/services/account/handler.dart';
 import 'package:vaultify/util/services/account/premium.dart';
 import 'package:vaultify/util/services/data/env.dart';
+import 'package:vaultify/util/services/encryption/handler.dart';
 import 'package:vaultify/util/services/groups/handler.dart';
 import 'package:vaultify/util/services/toast/handler.dart';
 
@@ -231,9 +233,6 @@ class PasswordsHandler {
       groupedPasswords.putIfAbsent(site, () => []).add(password);
     }
 
-    //Debug
-    debugPrint(groupedPasswords.toString());
-
     //Return Grouped Passwords
     return groupedPasswords;
   }
@@ -258,12 +257,20 @@ class PasswordsHandler {
     //Added Status
     bool added = false;
 
+    //Encrypt Password
+    final encryptedPwd = await EncryptionHandler.encryptPassword(
+      message: password.password,
+      publicKey: EncryptionHandler.pemToPublicKey(
+        await EncryptionHandler.publicKey,
+      ),
+    );
+
     //Add Password
     final addedPwd = (await _supabase.from("passwords").upsert(
       {
         "id": password.id,
         "name": password.name,
-        "password": password.password,
+        "encrypted_password": encryptedPwd,
         "uid": _currentUserID,
       },
     ).select())
@@ -298,10 +305,25 @@ class PasswordsHandler {
     bool updated = false;
     PostgrestList? groupUpdated;
 
+    //Encrypt Password
+    final encryptedPwd = await EncryptionHandler.encryptPassword(
+      message: password.password,
+      publicKey: EncryptionHandler.pemToPublicKey(
+        await EncryptionHandler.publicKey,
+      ),
+    );
+
     //Update Password
     final updatedPwd = await _supabase
         .from("passwords")
-        .update(password.toJSON())
+        .update(
+          {
+            "id": password.id,
+            "name": password.name,
+            "encrypted_password": encryptedPwd,
+            "uid": _currentUserID,
+          },
+        )
         .eq("id", password.id)
         .select();
 
@@ -336,12 +358,20 @@ class PasswordsHandler {
     //Added Status
     bool added = false;
 
+    //Encrypt Password
+    final encryptedPwd = await EncryptionHandler.encryptPassword(
+      message: password.password,
+      publicKey: EncryptionHandler.pemToPublicKey(
+        await EncryptionHandler.publicKey,
+      ),
+    );
+
     //Add Password
     final addedPwd = (await _supabase.from("passwords").upsert(
       {
         "id": password.id,
         "name": password.name,
-        "password": password.password,
+        "encrypted_password": encryptedPwd,
         "uid": _currentUserID,
       },
     ).select())

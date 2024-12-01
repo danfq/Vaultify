@@ -176,9 +176,6 @@ class _NewItemState extends State<NewItem> {
                 );
               }
 
-              //Debug
-              debugPrint(passwordItem.toJSON().toString());
-
               //Save Password
               await showDialog(
                 context: context,
