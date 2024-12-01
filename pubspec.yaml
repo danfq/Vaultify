@@ -46,7 +46,7 @@ dependencies:
   toastification: ^2.3.0
   animated_expandable_fab: ^0.0.3
   pointycastle: ^3.9.1
-  flutter_secure_storage: ^4.2.1
+  flutter_secure_storage: ^9.2.2
 
 dev_dependencies:
   flutter_test:
@@ -57,6 +57,7 @@ dev_dependencies:
 flutter:
 
   uses-material-design: true
+
 
   # Assets
   assets:

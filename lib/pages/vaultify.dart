@@ -9,6 +9,7 @@ import 'package:vaultify/pages/home/lists/passwords.dart';
 import 'package:vaultify/pages/home/new.dart';
 import 'package:vaultify/pages/settings/profile/premium.dart';
 import 'package:vaultify/pages/settings/settings.dart';
+import 'package:vaultify/util/services/encryption/handler.dart';
 import 'package:vaultify/util/services/groups/handler.dart';
 import 'package:vaultify/util/services/passwords/handler.dart';
 import 'package:vaultify/util/services/toast/handler.dart';
@@ -42,6 +43,49 @@ class _VaultifyState extends State<Vaultify> {
       default:
         return Container();
     }
+  }
+
+  ///Private Key
+  String _privateKey = "";
+
+  ///Get Private Key
+  Future<void> getPrivateKey() async {
+    //Private Key
+    final privateKey = await EncryptionHandler.privateKey;
+
+    setState(() {
+      _privateKey = privateKey ?? "";
+    });
+
+    //Check if Private Key is Set
+    if (_privateKey.isEmpty) {
+      //Set Private Key
+      notifyPrivateKeyAbsence();
+    }
+  }
+
+  ///Notify User of Private Key Absence
+  Future<void> notifyPrivateKeyAbsence() async {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await Get.defaultDialog(
+        barrierDismissible: false,
+        title: "Hi!",
+        middleText:
+            "It seems like you don't have a Private Key set.\nPlease set it via the Settings.",
+        confirm: ElevatedButton(
+          onPressed: () => Get.to(() => const Settings()),
+          child: const Text("Open Settings"),
+        ),
+      );
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    //Get Private Key
+    getPrivateKey();
   }
 
   @override
