@@ -8,6 +8,8 @@ import 'package:vaultify/pages/account/login.dart';
 import 'package:vaultify/pages/vaultify.dart';
 import 'package:vaultify/util/services/data/local.dart';
 import 'package:vaultify/util/services/data/remote.dart';
+import 'package:vaultify/util/services/groups/handler.dart';
+import 'package:vaultify/util/services/passwords/handler.dart';
 import 'package:vaultify/util/services/toast/handler.dart';
 import 'package:vaultify/util/widgets/buttons.dart';
 import 'package:mailto/mailto.dart';
@@ -158,6 +160,19 @@ class AccountHandler {
                   onFinish: () {},
                   onWaitingProcess: () async {
                     try {
+                      //Delete User
+                      await _supabase
+                          .from("users")
+                          .delete()
+                          .eq("id", cachedUser["id"]);
+
+                      //Delete Groups
+                      await GroupsHandler.deleteAll();
+
+                      //Delete Passwords
+                      await PasswordsHandler.deleteAll();
+
+                      //Add Deletion Request
                       await RemoteData.addData(
                         table: "delete_requests",
                         data: {

@@ -385,4 +385,10 @@ class PasswordsHandler {
     //Return Passwords
     return passwords;
   }
+
+  ///Delete All Passwords
+  static Future<void> deleteAll() async {
+    //Delete Passwords
+    await _supabase.from("passwords").delete().eq("uid", _currentUserID);
+  }
 }

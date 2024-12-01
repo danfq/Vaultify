@@ -213,4 +213,9 @@ class GroupsHandler {
     //Wait for Confirmation
     return completer.future;
   }
+
+  static Future<void> deleteAll() async {
+    //Delete Passwords
+    await _supabase.from("groups").delete().eq("uid", _currentUserID);
+  }
 }
