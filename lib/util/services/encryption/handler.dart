@@ -1,10 +1,13 @@
+import 'dart:io';
 import 'dart:math';
 import 'dart:typed_data';
 import 'dart:convert';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:pointycastle/export.dart';
 import 'package:pointycastle/asn1.dart';
+import 'package:vaultify/util/services/toast/handler.dart';
 
 ///Encryption Handler
 class EncryptionHandler {
@@ -16,6 +19,68 @@ class EncryptionHandler {
 
   ///Private Key
   static get privateKey async => await _secureStorage.read(key: "privateKey");
+
+  ///Import Key
+  static Future<void> importKey({required File file}) async {
+    //Read File
+    final bytes = await file.readAsBytes();
+
+    //Convert bytes to string
+    final pemString = String.fromCharCodes(bytes);
+
+    //Validate and parse private key
+    try {
+      await _secureStorage.write(key: "privateKey", value: pemString);
+    } catch (e) {
+      throw Exception('Invalid private key format: $e');
+    }
+  }
+
+  ///Export Key
+  static Future<bool> exportKey() async {
+    try {
+      //Private Key
+      final privateKey = await _secureStorage.read(key: "privateKey");
+
+      if (privateKey == null || privateKey.isEmpty) {
+        ToastHandler.toast(message: "No Private Key Found");
+        return false;
+      }
+
+      //Bytes
+      final bytes = utf8.encode(privateKey);
+      if (bytes.isEmpty) {
+        throw Exception("Failed to Encode Private Key");
+      }
+
+      //Request File Path
+      final path = await FilePicker.platform.saveFile(
+        type: FileType.custom,
+        allowedExtensions: ["pem"],
+        fileName: "Vaultify_Private_Key.pem",
+      );
+
+      //Check if Path is Valid
+      if (path == null) {
+        return false;
+      }
+
+      //Write Bytes to File
+      final file = await File(path).writeAsBytes(bytes);
+
+      //Check if File was Saved
+      if (file.path.isEmpty) {
+        ToastHandler.toast(message: "Failed to Save Private Key");
+        return false;
+      }
+
+      //Return True
+      return true;
+    } catch (error) {
+      debugPrint("Error in exportKey: $error");
+      return false;
+    }
+  }
 
   ///Encrypt Message
   static Future<String> encryptPassword({

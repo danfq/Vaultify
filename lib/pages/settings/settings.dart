@@ -4,11 +4,15 @@ import 'package:get/route_manager.dart';
 import 'package:local_auth/local_auth.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:settings_ui/settings_ui.dart';
+import 'package:vaultify/pages/security/import_key.dart';
 import 'package:vaultify/pages/settings/profile/info.dart';
 import 'package:vaultify/pages/settings/profile/premium.dart';
 import 'package:vaultify/pages/settings/team/team.dart';
 import 'package:vaultify/util/services/data/local.dart';
+import 'package:vaultify/util/services/encryption/handler.dart';
+import 'package:vaultify/util/services/toast/handler.dart';
 import 'package:vaultify/util/theming/controller.dart';
+import 'package:vaultify/util/widgets/buttons.dart';
 import 'package:vaultify/util/widgets/main.dart';
 
 class Settings extends StatefulWidget {
@@ -120,6 +124,76 @@ class _SettingsState extends State<Settings> {
                     );
                   },
                   title: const Text("Biometric Lock"),
+                ),
+
+                //Import Private Key
+                SettingsTile.navigation(
+                  leading: const Icon(Ionicons.ios_key_outline),
+                  title: const Text("Import Private Key"),
+                  onPressed: (context) => Get.to(
+                    () => const ImportKey(),
+                  ),
+                ),
+
+                //Export Private Key
+                SettingsTile.navigation(
+                  leading: const Icon(Ionicons.ios_cloud_upload_outline),
+                  title: const Text("Export Private Key"),
+                  onPressed: (context) {
+                    //Show Export Key Dialog
+                    Get.defaultDialog(
+                      title: "Export Private Key",
+                      middleText:
+                          "Export your Private Key to a file for backup or transfer.",
+                      cancel: Buttons.text(
+                        text: "Cancel",
+                        onTap: () => Get.back(),
+                      ),
+                      confirm: Buttons.elevated(
+                        text: "Export",
+                        onTap: () async {
+                          try {
+                            //Close Dialog
+                            Get.back();
+
+                            //Show Loading Dialog
+                            Get.dialog(
+                              const Center(
+                                child: CircularProgressIndicator(),
+                              ),
+                              barrierDismissible: false,
+                            );
+
+                            //Export Key
+                            final exported =
+                                await EncryptionHandler.exportKey();
+
+                            //Close Loading Dialog
+                            Get.back();
+
+                            //Check if Exported
+                            if (!exported) return;
+
+                            //Notify User
+                            ToastHandler.toast(
+                              message: "Private Key Exported Successfully!",
+                            );
+                          } catch (e) {
+                            //Close Loading Dialog if it's showing
+                            if (Get.isDialogOpen ?? false) {
+                              Get.back();
+                            }
+
+                            //Show Error
+                            ToastHandler.toast(
+                              message:
+                                  "Error exporting Private Key: ${e.toString()}",
+                            );
+                          }
+                        },
+                      ),
+                    );
+                  },
                 ),
               ],
             ),

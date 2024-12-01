@@ -100,7 +100,7 @@ class _VaultifyState extends State<Vaultify> {
           Padding(
             padding: const EdgeInsets.only(right: 10.0),
             child: IconButton(
-              onPressed: () => Get.to(() => const Settings()),
+              onPressed: () => Get.off(() => const Settings()),
               icon: const Icon(Ionicons.ios_settings_outline),
             ),
           ),
