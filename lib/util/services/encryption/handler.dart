@@ -7,7 +7,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:pointycastle/export.dart';
 import 'package:pointycastle/asn1.dart';
-import 'package:vaultify/util/services/toast/handler.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:path_provider/path_provider.dart';
 
@@ -17,10 +16,12 @@ class EncryptionHandler {
   static const _secureStorage = FlutterSecureStorage();
 
   ///Public Key
-  static get publicKey async => await _secureStorage.read(key: "publicKey");
+  static Future<String?> get publicKey async =>
+      await _secureStorage.read(key: "publicKey");
 
   ///Private Key
-  static get privateKey async => await _secureStorage.read(key: "privateKey");
+  static Future<String?> get privateKey async =>
+      await _secureStorage.read(key: "privateKey");
 
   ///Import Key
   static Future<void> importKey({required File file}) async {

@@ -260,7 +260,7 @@ class PasswordsHandler {
     final encryptedPwd = await EncryptionHandler.encryptPassword(
       message: password.password,
       publicKey: EncryptionHandler.pemToPublicKey(
-        await EncryptionHandler.publicKey,
+        await EncryptionHandler.publicKey ?? "",
       ),
     );
 
@@ -308,7 +308,7 @@ class PasswordsHandler {
     final encryptedPwd = await EncryptionHandler.encryptPassword(
       message: password.password,
       publicKey: EncryptionHandler.pemToPublicKey(
-        await EncryptionHandler.publicKey,
+        await EncryptionHandler.publicKey ?? "",
       ),
     );
 
@@ -361,7 +361,7 @@ class PasswordsHandler {
     final encryptedPwd = await EncryptionHandler.encryptPassword(
       message: password.password,
       publicKey: EncryptionHandler.pemToPublicKey(
-        await EncryptionHandler.publicKey,
+        await EncryptionHandler.publicKey ?? "",
       ),
     );
 
