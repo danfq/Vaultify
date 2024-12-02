@@ -40,7 +40,7 @@ dependencies:
   animated_custom_dropdown: ^3.1.1
   mailto: ^2.0.0
   intl: ^0.18.1
-  file_picker: ^8.1.2
+  file_picker: ^8.1.4
   permission_handler: ^11.3.1
   csv: ^6.0.0
   toastification: ^2.3.0

@@ -8,6 +8,8 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:pointycastle/export.dart';
 import 'package:pointycastle/asn1.dart';
 import 'package:vaultify/util/services/toast/handler.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:path_provider/path_provider.dart';
 
 ///Encryption Handler
 class EncryptionHandler {
@@ -39,47 +41,106 @@ class EncryptionHandler {
   ///Export Key
   static Future<bool> exportKey() async {
     try {
+      //Request Permissions for Android
+      if (Platform.isAndroid) {
+        //Permission Status
+        final status = await Permission.storage.status;
+
+        //Check if Permission is Granted
+        if (!status.isGranted) {
+          //Request Permission
+          final result = await Permission.storage.request();
+
+          //Check if Permission is Granted
+          if (!result.isGranted) {
+            throw Exception("Storage permission denied");
+          }
+        }
+      }
+
       //Private Key
       final privateKey = await _secureStorage.read(key: "privateKey");
 
+      //Check if Private Key is Null or Empty
       if (privateKey == null || privateKey.isEmpty) {
-        ToastHandler.toast(message: "No Private Key Found");
-        return false;
+        throw Exception("No Private Key Found");
       }
 
       //Bytes
       final bytes = utf8.encode(privateKey);
+
+      //Check if Bytes are Empty
       if (bytes.isEmpty) {
-        throw Exception("Failed to Encode Private Key");
+        throw Exception("Failed to Encode Private Key: Empty Bytes");
       }
 
-      //Request File Path
-      final path = await FilePicker.platform.saveFile(
-        type: FileType.custom,
-        allowedExtensions: ["pem"],
-        fileName: "Vaultify_Private_Key.pem",
-      );
-
-      //Check if Path is Valid
-      if (path == null) {
-        return false;
+      String path;
+      if (Platform.isAndroid) {
+        path = await _saveFileAndroid();
+      } else if (Platform.isIOS) {
+        path = await _saveFileIOS();
+      } else if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
+        path = (await _saveFileDesktop()) ?? "";
+      } else {
+        throw Exception("Platform Not Supported");
       }
+
+      debugPrint("Save location selected: $path");
 
       //Write Bytes to File
       final file = await File(path).writeAsBytes(bytes);
 
       //Check if File was Saved
-      if (file.path.isEmpty) {
-        ToastHandler.toast(message: "Failed to Save Private Key");
-        return false;
+      if (!await file.exists()) {
+        throw Exception("Failed to Save Private Key: File Does Not Exist");
       }
 
       //Return True
       return true;
     } catch (error) {
-      debugPrint("Error in exportKey: $error");
-      return false;
+      throw Exception("Error Exporting Private Key: $error");
     }
+  }
+
+  ///Save File on Android
+  static Future<String> _saveFileAndroid() async {
+    //Directory
+    final directory = await getApplicationDocumentsDirectory();
+
+    //Check if Directory Exists
+    if (!await directory.exists()) {
+      //Create Directory
+      await directory.create(recursive: true);
+    }
+
+    //Path
+    final path = "${directory.path}/Vaultify_Private_Key.pem";
+
+    //Return Path
+    return path;
+  }
+
+  ///Save File on iOS
+  static Future<String> _saveFileIOS() async {
+    //Directory
+    final directory = await getApplicationDocumentsDirectory();
+
+    //Path
+    final path = "${directory.path}/Vaultify_Private_Key.pem";
+
+    //Return Path
+    return path;
+  }
+
+  ///Save File on Desktop Platforms
+  static Future<String?> _saveFileDesktop() async {
+    return await FilePicker.platform.saveFile(
+      dialogTitle: "Choose Where to Save Private Key",
+      fileName: "Vaultify_Private_Key.pem",
+      type: FileType.custom,
+      allowedExtensions: ["pem"],
+      lockParentWindow: true,
+    );
   }
 
   ///Encrypt Message

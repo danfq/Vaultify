@@ -58,5 +58,19 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+
+	<!-- Storage Permissions -->
+	<key>NSDocumentsFolderUsageDescription</key>
+	<string>Access to documents folder is required to export Encryption Keys</string>
+
+	<key>UISupportsDocumentBrowser</key>
+	<true/>
+
+	<!-- Background Modes -->
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>fetch</string>
+		<string>remote-notification</string>
+	</array>
 </dict>
 </plist>
