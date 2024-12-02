@@ -300,53 +300,86 @@ class PasswordsHandler {
     required Password password,
     Group? group,
   }) async {
-    //Updated
-    bool updated = false;
-    PostgrestList? groupUpdated;
+    try {
+      //Check if Group is Provided
+      if (group != null) {
+        debugPrint('Group data: ID=${group.id}, Name=${group.name}');
+      }
 
-    //Encrypt Password
-    final encryptedPwd = await EncryptionHandler.encryptPassword(
-      message: password.password,
-      publicKey: EncryptionHandler.pemToPublicKey(
-        await EncryptionHandler.publicKey ?? "",
-      ),
-    );
+      //Updated
+      bool updated = false;
+      PostgrestList? groupUpdated;
 
-    //Update Password
-    final updatedPwd = await _supabase
-        .from("passwords")
-        .update(
-          {
-            "id": password.id,
-            "name": password.name,
-            "encrypted_password": encryptedPwd,
+      //Encrypt Password
+      final encryptedPwd = await EncryptionHandler.encryptPassword(
+        message: password.password,
+        publicKey: EncryptionHandler.pemToPublicKey(
+          await EncryptionHandler.publicKey ?? "",
+        ),
+      );
+
+      //Update Password
+      final updateData = {
+        "id": password.id,
+        "name": password.name,
+        "encrypted_password": encryptedPwd,
+        "uid": _currentUserID,
+      };
+
+      //Update Password
+      final updatedPwd = await _supabase
+          .from("passwords")
+          .update(updateData)
+          .eq("id", password.id)
+          .select();
+
+      //Updated Group - if Provided
+      if (group != null) {
+        try {
+          //Check if Relation Exists
+          final existingRelation = await _supabase
+              .from("group_passwords")
+              .select()
+              .eq("password_id", password.id)
+              .limit(1);
+
+          //Group Update Data
+          final groupUpdateData = {
+            "group_id": group.id,
+            "password_id": password.id,
             "uid": _currentUserID,
-          },
-        )
-        .eq("id", password.id)
-        .select();
+          };
 
-    //Updated Group - if provided
-    if (group != null) {
-      groupUpdated = (await _supabase
-          .from("group_passwords")
-          .update(
-            {
-              "group_id": group.id,
-              "password_id": password.id,
-              "uid": _currentUserID,
-            },
-          )
-          .eq("password_id", password.id)
-          .select());
+          //If Relation Doesn't Exist, Insert
+          if (existingRelation.isEmpty) {
+            groupUpdated = await _supabase
+                .from("group_passwords")
+                .insert(groupUpdateData)
+                .select();
+          } else {
+            groupUpdated = await _supabase
+                .from("group_passwords")
+                .update(groupUpdateData)
+                .eq("password_id", password.id)
+                .select();
+          }
+        } catch (groupError) {
+          return false;
+        }
+      }
+
+      //Set Updated Status
+      updated =
+          updatedPwd.isNotEmpty && (group == null || groupUpdated!.isNotEmpty);
+
+      debugPrint('Final update status: $updated');
+      return updated;
+    } catch (error, stackTrace) {
+      debugPrint('Error in updateByID:');
+      debugPrint('Error: $error');
+      debugPrint('Stack trace: $stackTrace');
+      return false;
     }
-
-    //Set Updated Status
-    updated =
-        updatedPwd.isNotEmpty && (group == null || groupUpdated!.isNotEmpty);
-
-    //Return Updated Status
-    return updated;
   }
 
   ///Add Password with Group

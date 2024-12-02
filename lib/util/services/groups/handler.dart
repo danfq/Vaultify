@@ -107,14 +107,14 @@ class GroupsHandler {
           // Fetch password data securely from passwords_view
           final groupPasswordsData = await _supabase
               .from("group_passwords")
-              .select("group_id, password_id, passwords_view(*)")
+              .select("group_id, password_id, passwords(*)")
               .eq("uid", currentUserID);
 
           final passwordMap = <String, List<Password>>{};
 
           for (var relation in groupPasswordsData) {
             final groupId = relation["group_id"] as String?;
-            final passwordData = relation["passwords_view"];
+            final passwordData = relation["passwords"];
 
             if (groupId != null && passwordData != null) {
               try {

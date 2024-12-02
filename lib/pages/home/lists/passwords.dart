@@ -238,7 +238,11 @@ class _PasswordsListState extends State<PasswordsList> {
   ///Delete Password
   Future<void> _deletePassword(Password item, int index) async {
     //Delete from Database
-    await RemoteData.deleteDataByID(table: "passwords", id: item.id);
+    await RemoteData.deleteDataByID(
+      table: "passwords",
+      id: item.id,
+      isPassword: true,
+    );
 
     //Delete Local Password
     final int removeIndex =

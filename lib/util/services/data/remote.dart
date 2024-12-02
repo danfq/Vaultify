@@ -96,7 +96,23 @@ class RemoteData {
   static Future<void> deleteDataByID({
     required String table,
     required String id,
+    bool? isPassword,
   }) async {
-    await _supabase.from(table).delete().eq("id", id);
+    try {
+      //Delete Group Password Relationship
+      if (isPassword == true) {
+        //Delete Group Password Relationship
+        await _supabase.from("group_passwords").delete().eq("password_id", id);
+
+        //Add Small Delay
+        await Future.delayed(const Duration(milliseconds: 100));
+      }
+
+      //Delete Data
+      await _supabase.from(table).delete().eq("id", id);
+    } catch (e) {
+      debugPrint('Error deleting data: $e');
+      rethrow; // Rethrow to handle in calling code
+    }
   }
 }
