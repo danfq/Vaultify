@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'package:animated_expandable_fab/expandable_fab/action_button.dart';
 import 'package:animated_expandable_fab/expandable_fab/expandable_fab.dart';
 import 'package:flutter/material.dart';
@@ -35,17 +34,14 @@ class _VaultifyState extends State<Vaultify> {
     switch (_navIndex) {
       //All Passwords
       case 0:
-        debugPrint("Passwords");
         return const PasswordsList();
 
       //Groups
       case 1:
-        debugPrint("Groups");
         return const GroupsList();
 
       //Default - None
       default:
-        debugPrint("None");
         return const SizedBox.shrink();
     }
   }
