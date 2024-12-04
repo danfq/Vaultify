@@ -10,6 +10,7 @@ import 'package:vaultify/util/services/account/premium.dart';
 import 'package:vaultify/util/services/data/env.dart';
 import 'package:vaultify/util/services/data/local.dart';
 import 'package:vaultify/util/services/permissions/handler.dart';
+import 'package:vaultify/util/services/tray/handler.dart';
 
 ///Main Services Handler
 class MainServices {
@@ -21,6 +22,7 @@ class MainServices {
   ///- Local Data (Hive).
   ///- Remote Data (Supabase).
   ///- Stripe.
+  ///- Tray.
   static Future<void> init() async {
     //Widgets Binding
     WidgetsFlutterBinding.ensureInitialized();
@@ -44,6 +46,9 @@ class MainServices {
 
     //Premium
     await PremiumHandler.init();
+
+    //Tray
+    await TrayHandler.init();
   }
 
   ///Initial Route
