@@ -1,16 +1,38 @@
-# vaultify
+# Vaultify
 
-A new Flutter project.
+## What is it?
 
-## Getting Started
+`Vaultify` is a Password Manager built with Flutter.
+<br>
+It is a cross-platform App that allows you to manage all your Passwords in one place.
 
-This project is a starting point for a Flutter application.
+## Installation
 
-A few resources to get you started if this is your first Flutter project:
+### Windows, Linux & Android
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+Download the latest release from the [Releases](https://github.com/danfq/Vaultify/releases) page.
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+#### Linux Notes
+
+For the Tray Icon to work, you need to install the `ayatana-appindicator3-0.1` or `appindicator3-0.1` package.
+
+### macOS & iOS
+
+If you're running `iOS` or `macOS`, you can download the app from the App Store!
+
+## Features
+
+| Feature | Status | WIP |
+|---------|--------|--------|
+| Cloud Sync | ✅ | - |
+| Biometric Authentication | ✅ | - |
+| Password Groups | ✅ | - |
+| Import from File | ✅ | - |
+| Password Strength Checker | ❌ | Yes |
+| Password Generator | ❌ | Yes |
+
+## License
+
+This project is licensed under the [GNU GPLv3 License](https://choosealicense.com/licenses/gpl-3.0/).
+
+This means that you can use the App, modify it and distribute it, but you have to disclose the source code and you cannot sell it.
