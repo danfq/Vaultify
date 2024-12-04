@@ -110,9 +110,7 @@ class _NewItemState extends State<NewItem> {
             //Password
             Input(
               controller: _passwordController,
-              placeholder:
-                  EncryptionHandler.decodeASCII(ascii: _password?.password) ??
-                      "Password",
+              placeholder: _password?.password ?? "Password",
               isPassword: true,
             ),
 
@@ -201,7 +199,7 @@ class _NewItemState extends State<NewItem> {
                 },
               ).then((success) async {
                 //Check Success
-                if (success) {
+                if (success ?? false) {
                   //Notify User
                   ToastHandler.toast(message: "Password Saved!");
 
@@ -219,6 +217,20 @@ class _NewItemState extends State<NewItem> {
           },
         ),
       ),
+    );
+  }
+}
+
+Future<void> ensureKeyPairExists() async {
+  final publicKey = await EncryptionHandler.publicKey;
+  final privateKey = await EncryptionHandler.privateKey;
+
+  if (publicKey == null || privateKey == null) {
+    // Generate new key pair
+    final keyPair = await EncryptionHandler.generateKeyPair();
+    await EncryptionHandler.saveKeyPairSecurely(
+      publicKey: keyPair['publicKey']!,
+      privateKey: keyPair['privateKey']!,
     );
   }
 }

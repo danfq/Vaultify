@@ -84,9 +84,10 @@ class Buttons {
     required IconData icon,
     required VoidCallback onTap,
     Color? backgroundColor,
+    Color? iconColor,
   }) {
     return IconButton.filled(
-      icon: Icon(icon, color: Theme.of(Get.context!).cardColor),
+      icon: Icon(icon, color: iconColor ?? Theme.of(Get.context!).cardColor),
       style: IconButton.styleFrom(backgroundColor: backgroundColor),
       onPressed: onTap,
     );

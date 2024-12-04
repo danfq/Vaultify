@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:animated_expandable_fab/expandable_fab/action_button.dart';
 import 'package:animated_expandable_fab/expandable_fab/expandable_fab.dart';
 import 'package:flutter/material.dart';
@@ -33,15 +35,18 @@ class _VaultifyState extends State<Vaultify> {
     switch (_navIndex) {
       //All Passwords
       case 0:
+        debugPrint("Passwords");
         return const PasswordsList();
 
       //Groups
       case 1:
+        debugPrint("Groups");
         return const GroupsList();
 
       //Default - None
       default:
-        return Container();
+        debugPrint("None");
+        return const SizedBox.shrink();
     }
   }
 
@@ -88,33 +93,113 @@ class _VaultifyState extends State<Vaultify> {
     getPrivateKey();
   }
 
+  // Add this method to build the drawer
+  Widget _buildDrawer() {
+    return Drawer(
+      child: ListView(
+        padding: EdgeInsets.zero,
+        children: [
+          DrawerHeader(
+            decoration: BoxDecoration(
+              color: Theme.of(context).scaffoldBackgroundColor,
+            ),
+            child: const Text(
+              "Vaultify",
+              style: TextStyle(
+                fontSize: 24,
+              ),
+            ),
+          ),
+
+          //Passwords
+          ListTile(
+            leading: const Icon(Ionicons.ios_lock_closed_outline),
+            title: const Text("Passwords"),
+            selected: _navIndex == 0,
+            onTap: () {
+              setState(() {
+                _navIndex = 0;
+              });
+
+              //Close Drawer
+              Get.back();
+            },
+          ),
+
+          //Groups
+          ListTile(
+            leading: const Icon(Ionicons.ios_grid_outline),
+            title: const Text("Groups"),
+            selected: _navIndex == 1,
+            onTap: () {
+              setState(() {
+                _navIndex = 1;
+              });
+
+              //Close Drawer
+              Get.back();
+            },
+          ),
+
+          //Settings
+          ListTile(
+            leading: const Icon(Ionicons.ios_settings_outline),
+            title: const Text("Settings"),
+            onTap: () {
+              //Close Drawer
+              Get.back();
+
+              //Open Settings
+              Get.to(() => const Settings());
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final isMobile = Platform.isIOS || Platform.isAndroid;
+
     return Scaffold(
       appBar: MainWidgets.appBar(
         title: const Text("Vaultify"),
         centerTitle: false,
         allowBack: false,
+        leading: !isMobile
+            ? Builder(
+                builder: (context) => Buttons.icon(
+                  icon: Ionicons.ios_menu_outline,
+                  onTap: () {
+                    Scaffold.of(context).openDrawer();
+                  },
+                ),
+              )
+            : null,
         actions: [
-          //Settings
-          Padding(
-            padding: const EdgeInsets.only(right: 10.0),
-            child: IconButton(
-              onPressed: () => Get.off(() => const Settings()),
-              icon: const Icon(Ionicons.ios_settings_outline),
+          if (isMobile)
+            Padding(
+              padding: const EdgeInsets.only(right: 10.0),
+              child: IconButton(
+                onPressed: () => Get.to(() => const Settings()),
+                icon: const Icon(Ionicons.ios_settings_outline),
+              ),
             ),
-          ),
         ],
       ),
+      drawer: !isMobile ? _buildDrawer() : null,
       body: SafeArea(child: _body()),
-      bottomNavigationBar: MainWidgets.bottomNav(
-        navIndex: _navIndex,
-        onChanged: (index) {
-          setState(() {
-            _navIndex = index;
-          });
-        },
-      ),
+      bottomNavigationBar: isMobile
+          ? MainWidgets.bottomNav(
+              navIndex: _navIndex,
+              onChanged: (index) {
+                setState(() {
+                  _navIndex = index;
+                });
+              },
+            )
+          : null,
       floatingActionButton: ExpandableFab(
         distance: 100.0,
         openIcon: const Icon(Ionicons.ios_add, color: Colors.white),

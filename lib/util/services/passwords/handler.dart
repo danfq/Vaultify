@@ -372,12 +372,8 @@ class PasswordsHandler {
       updated =
           updatedPwd.isNotEmpty && (group == null || groupUpdated!.isNotEmpty);
 
-      debugPrint('Final update status: $updated');
       return updated;
-    } catch (error, stackTrace) {
-      debugPrint('Error in updateByID:');
-      debugPrint('Error: $error');
-      debugPrint('Stack trace: $stackTrace');
+    } catch (error) {
       return false;
     }
   }
@@ -387,43 +383,64 @@ class PasswordsHandler {
     required Password password,
     required String groupID,
   }) async {
-    //Added Status
-    bool added = false;
+    try {
+      //Public Key
+      final publicKeyPem = await EncryptionHandler.publicKey;
 
-    //Encrypt Password
-    final encryptedPwd = await EncryptionHandler.encryptPassword(
-      message: password.password,
-      publicKey: EncryptionHandler.pemToPublicKey(
-        await EncryptionHandler.publicKey ?? "",
-      ),
-    );
+      //Check if Public Key is Available
+      if (publicKeyPem == null || publicKeyPem.isEmpty) {
+        throw Exception("No Public Key Available for Encryption");
+      }
 
-    //Add Password
-    final addedPwd = (await _supabase.from("passwords").upsert(
-      {
-        "id": password.id,
-        "name": password.name,
-        "encrypted_password": encryptedPwd,
+      // Parse the public key
+      final publicKey = EncryptionHandler.pemToPublicKey(publicKeyPem);
+
+      // Encrypt the password
+      final encryptedPassword = await EncryptionHandler.encryptPassword(
+        message: password.password,
+        publicKey: publicKey,
+      );
+
+      // Create new password object with encrypted password
+      final encryptedPasswordObj = Password(
+        id: password.id,
+        name: password.name,
+        password: encryptedPassword,
+      );
+
+      //Added Status
+      bool added = false;
+
+      //Add Password
+      final addedPwd = (await _supabase.from("passwords").upsert(
+        {
+          "id": encryptedPasswordObj.id,
+          "name": encryptedPasswordObj.name,
+          "encrypted_password": encryptedPasswordObj.password,
+          "uid": _currentUserID,
+        },
+      ).select())
+          .isNotEmpty;
+
+      //Add Relationship with Group
+      final addedRel = (await _supabase.from("group_passwords").upsert({
+        "group_id": groupID,
+        "password_id": encryptedPasswordObj.id,
         "uid": _currentUserID,
-      },
-    ).select())
-        .isNotEmpty;
+      }).select())
+          .isNotEmpty;
 
-    //Add Relationship with Group
-    final addedRel = (await _supabase.from("group_passwords").upsert({
-      "group_id": groupID,
-      "password_id": password.id,
-      "uid": _currentUserID,
-    }).select())
-        .isNotEmpty;
+      //Check if All is Good
+      if (addedPwd && addedRel) {
+        added = true;
+      }
 
-    //Check if All is Good
-    if (addedPwd && addedRel) {
-      added = true;
+      //Return Added Status
+      return added;
+    } catch (e) {
+      debugPrint("Error adding password with group: $e");
+      return false;
     }
-
-    //Return Added Status
-    return added;
   }
 
   ///Get All Passwords

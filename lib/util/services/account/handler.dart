@@ -13,8 +13,6 @@ import 'package:vaultify/util/services/groups/handler.dart';
 import 'package:vaultify/util/services/passwords/handler.dart';
 import 'package:vaultify/util/services/toast/handler.dart';
 import 'package:vaultify/util/widgets/buttons.dart';
-import 'package:mailto/mailto.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 ///Account Handler
 class AccountHandler {
@@ -214,15 +212,21 @@ class AccountHandler {
     required String password,
     required String username,
   }) async {
-//User
+    //User
     User? user;
 
-    //Attempt to Sign In
+    //Generate Key Pair
+    final keyPair = await EncryptionHandler.generateKeyPair();
+
+    //Attempt to Create Account
     try {
       await _auth.signUp(
         email: email,
         password: password,
-        data: {"username": username},
+        data: {
+          "username": username,
+          "public_key": keyPair["publicKey"],
+        },
       ).then(
         (authResponse) async {
           //Check User
@@ -274,25 +278,11 @@ class AccountHandler {
           content: const Padding(
             padding: EdgeInsets.all(8.0),
             child: Text(
-              "You've requested the deletion of your account.\n\nIf you've changed your mind, please contact us.",
+              "You've requested the deletion of your account.\nAll your Data has been deleted.",
               textAlign: TextAlign.center,
             ),
           ),
-          confirm: Buttons.elevated(
-            text: "Contact Us",
-            onTap: () async {
-              //Mail To
-              final mailTo = Mailto(
-                to: ["help@danfq.dev"],
-                subject: "Account Deletion",
-                body:
-                    "User: $email\n\nThis User wants to keep their Account active.",
-              );
-
-              //Open Sheet
-              await launchUrl(Uri.parse(mailTo.toString()));
-            },
-          ),
+          confirm: Buttons.elevated(text: "Okay", onTap: () => Get.back()),
         );
       } else {
         await _auth
@@ -356,7 +346,6 @@ class AccountHandler {
         "id": user.id,
         "username": user.userMetadata?["username"],
         "joined": DateTime.now().millisecondsSinceEpoch,
-        "public_key": keyPair["publicKey"],
       });
 
       //Cache Key Pair

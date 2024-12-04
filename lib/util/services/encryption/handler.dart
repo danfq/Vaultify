@@ -9,6 +9,7 @@ import 'package:pointycastle/export.dart';
 import 'package:pointycastle/asn1.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:vaultify/util/services/account/handler.dart';
 
 ///Encryption Handler
 class EncryptionHandler {
@@ -17,11 +18,24 @@ class EncryptionHandler {
 
   ///Public Key
   static Future<String?> get publicKey async =>
-      await _secureStorage.read(key: "publicKey");
+      await _secureStorage.read(key: "publicKey") ??
+      await publicKeyFromServer();
 
   ///Private Key
   static Future<String?> get privateKey async =>
       await _secureStorage.read(key: "privateKey");
+
+  ///Get Public Key from Server
+  static Future<String?> publicKeyFromServer() async {
+    //Get User
+    final supabaseUser = AccountHandler.currentUser;
+    final cachedUser = AccountHandler.cachedUser;
+
+    //Return Public Key
+    return supabaseUser != null
+        ? supabaseUser.userMetadata!["public_key"]
+        : cachedUser["public_key"];
+  }
 
   ///Import Key
   static Future<void> importKey({required File file}) async {
@@ -170,10 +184,6 @@ class EncryptionHandler {
     required RSAPrivateKey privateKey,
   }) async {
     try {
-      //Decode ASCII first
-      final decodedMessage = decodeASCII(ascii: encryptedMessage);
-      if (decodedMessage == null) throw Exception("Failed to decode ASCII");
-
       //Decryptor
       final decryptor = RSAEngine();
 
@@ -181,9 +191,7 @@ class EncryptionHandler {
       decryptor.init(false, PrivateKeyParameter<RSAPrivateKey>(privateKey));
 
       //Decrypt Message
-      final decrypted = decryptor.process(
-        base64.decode(decodedMessage),
-      );
+      final decrypted = decryptor.process(base64.decode(encryptedMessage));
 
       //Return Decrypted Message
       return utf8.decode(decrypted);
@@ -308,24 +316,45 @@ class EncryptionHandler {
 
   ///PEM to Public Key
   static RSAPublicKey pemToPublicKey(String pemString) {
-    //Remove Headers & Footers
-    final rows = pemString.split('\n');
-    final key = rows
-        .where(
-            (row) => !row.contains("-----BEGIN") && !row.contains("-----END"))
-        .join("");
+    if (pemString.isEmpty) {
+      throw Exception("Public key PEM string is empty");
+    }
 
-    //Decode Base64
-    final bytes = base64.decode(key);
-    final asn1Parser = ASN1Parser(bytes);
-    final topLevelSeq = asn1Parser.nextObject() as ASN1Sequence;
+    try {
+      //Remove Headers & Footers
+      final rows = pemString.split('\n');
+      final key = rows
+          .where(
+              (row) => !row.contains("-----BEGIN") && !row.contains("-----END"))
+          .join("");
 
-    //Extract Modulus & Exponent
-    final modulus = (topLevelSeq.elements![0] as ASN1Integer).integer;
-    final exponent = (topLevelSeq.elements![1] as ASN1Integer).integer;
+      if (key.isEmpty) {
+        throw Exception("Invalid public key format");
+      }
 
-    //Return Public Key
-    return RSAPublicKey(modulus!, exponent!);
+      //Decode Base64
+      final bytes = base64.decode(key);
+      if (bytes.isEmpty) {
+        throw Exception("Invalid base64 encoding");
+      }
+
+      final asn1Parser = ASN1Parser(bytes);
+      final topLevelSeq = asn1Parser.nextObject() as ASN1Sequence;
+
+      //Extract Modulus & Exponent
+      final modulus = (topLevelSeq.elements![0] as ASN1Integer).integer;
+      final exponent = (topLevelSeq.elements![1] as ASN1Integer).integer;
+
+      if (modulus == null || exponent == null) {
+        throw Exception("Invalid RSA key components");
+      }
+
+      //Return Public Key
+      return RSAPublicKey(modulus, exponent);
+    } catch (e) {
+      debugPrint("Error parsing public key: $e");
+      throw Exception("Failed to parse public key: $e");
+    }
   }
 
   ///PEM to Private Key
@@ -354,57 +383,5 @@ class EncryptionHandler {
       debugPrint("Error parsing private key: $e");
       throw Exception("Failed to parse private key: $e");
     }
-  }
-
-  ///Decrypt Hex to Readable String
-  static String? decodeASCII({required String? ascii}) {
-    //Return null if the Input is Null or Empty
-    if (ascii == null || ascii.isEmpty) {
-      return null;
-    }
-
-    //Check if the string is already plain text (not hex-encoded)
-    if (!ascii.contains(r"\x") &&
-        !RegExp(r"^[0-9A-Fa-f\s]+$").hasMatch(ascii)) {
-      return ascii; // Return as-is if it's plain text
-    }
-
-    //Remove \x Prefix
-    ascii = ascii.replaceAll(r"\x", "");
-
-    //Bytes Buffer
-    List<int> bytes = [];
-
-    //Convert Every Two Hexadecimal Characters into a Byte
-    for (int i = 0; i < ascii.length; i += 2) {
-      try {
-        //Ensure we have enough characters remaining
-        if (i + 2 > ascii.length) break;
-
-        //Hex Byte
-        String hexByte = ascii.substring(i, i + 2);
-
-        //Validate hex characters
-        if (!RegExp(r"^[0-9A-Fa-f]{2}$").hasMatch(hexByte)) {
-          debugPrint("Invalid hex characters found: $hexByte");
-          continue;
-        }
-
-        //Byte
-        int byte = int.parse(hexByte, radix: 16);
-
-        //Add Byte to Buffer
-        bytes.add(byte);
-      } catch (e) {
-        debugPrint("Error parsing hex byte: $e");
-        continue;
-      }
-    }
-
-    //Return null if no valid bytes were parsed
-    if (bytes.isEmpty) return null;
-
-    //Return Readable String
-    return String.fromCharCodes(bytes);
   }
 }
