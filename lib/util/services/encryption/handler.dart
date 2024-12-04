@@ -184,6 +184,10 @@ class EncryptionHandler {
     required RSAPrivateKey privateKey,
   }) async {
     try {
+      //Decode ASCII first
+      final decodedMessage = decodeASCII(ascii: encryptedMessage);
+      if (decodedMessage == null) throw Exception("Failed to decode ASCII");
+
       //Decryptor
       final decryptor = RSAEngine();
 
@@ -191,7 +195,7 @@ class EncryptionHandler {
       decryptor.init(false, PrivateKeyParameter<RSAPrivateKey>(privateKey));
 
       //Decrypt Message
-      final decrypted = decryptor.process(base64.decode(encryptedMessage));
+      final decrypted = decryptor.process(base64.decode(decodedMessage));
 
       //Return Decrypted Message
       return utf8.decode(decrypted);
@@ -383,5 +387,57 @@ class EncryptionHandler {
       debugPrint("Error parsing private key: $e");
       throw Exception("Failed to parse private key: $e");
     }
+  }
+
+  ///Decrypt Hex to Readable String
+  static String? decodeASCII({required String? ascii}) {
+    //Return null if the Input is Null or Empty
+    if (ascii == null || ascii.isEmpty) {
+      return null;
+    }
+
+    //Check if the string is already plain text (not hex-encoded)
+    if (!ascii.contains(r"\x") &&
+        !RegExp(r"^[0-9A-Fa-f\s]+$").hasMatch(ascii)) {
+      return ascii; // Return as-is if it's plain text
+    }
+
+    //Remove \x Prefix
+    ascii = ascii.replaceAll(r"\x", "");
+
+    //Bytes Buffer
+    List<int> bytes = [];
+
+    //Convert Every Two Hexadecimal Characters into a Byte
+    for (int i = 0; i < ascii.length; i += 2) {
+      try {
+        //Ensure we have enough characters remaining
+        if (i + 2 > ascii.length) break;
+
+        //Hex Byte
+        String hexByte = ascii.substring(i, i + 2);
+
+        //Validate hex characters
+        if (!RegExp(r"^[0-9A-Fa-f]{2}$").hasMatch(hexByte)) {
+          debugPrint("Invalid hex characters found: $hexByte");
+          continue;
+        }
+
+        //Byte
+        int byte = int.parse(hexByte, radix: 16);
+
+        //Add Byte to Buffer
+        bytes.add(byte);
+      } catch (e) {
+        debugPrint("Error parsing hex byte: $e");
+        continue;
+      }
+    }
+
+    //Return null if no valid bytes were parsed
+    if (bytes.isEmpty) return null;
+
+    //Return Readable String
+    return String.fromCharCodes(bytes);
   }
 }

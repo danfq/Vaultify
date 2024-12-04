@@ -75,12 +75,32 @@ class Items {
                           //Edit Button
                           Buttons.iconFilled(
                             icon: Ionicons.ios_pencil_outline,
-                            onTap: () {
+                            onTap: () async {
                               //Close Bottom Sheet
                               Get.back();
 
+                              //Decrypted Password
+                              final decryptedPassword =
+                                  await EncryptionHandler.getKeyPairSecurely()
+                                      .then(
+                                (keys) => EncryptionHandler.decryptPassword(
+                                  encryptedMessage: item.password,
+                                  privateKey: EncryptionHandler.pemToPrivateKey(
+                                    keys["privateKey"] ?? "",
+                                  ),
+                                ),
+                              );
+
                               //Go to Edit Page
-                              Get.to(() => NewItem(password: item));
+                              Get.to(
+                                () => NewItem(
+                                  password: Password(
+                                    id: item.id,
+                                    name: item.name,
+                                    password: decryptedPassword,
+                                  ),
+                                ),
+                              );
                             },
                           ),
 

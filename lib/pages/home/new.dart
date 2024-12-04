@@ -84,6 +84,12 @@ class _NewItemState extends State<NewItem> {
   void initState() {
     super.initState();
 
+    // Initialize controllers with existing password data if editing
+    if (widget.password != null) {
+      _nameController.text = widget.password!.name;
+      _passwordController.text = widget.password!.password;
+    }
+
     //Get Groups
     _getGroups();
 
@@ -154,65 +160,83 @@ class _NewItemState extends State<NewItem> {
             final name = _nameController.text.trim();
             final password = _passwordController.text.trim();
 
-            //Check Name, Password & Group
-            if (name.isNotEmpty && password.isNotEmpty) {
-              //Password Item
-              Password passwordItem;
-
-              //Password Item
-              if (_password != null) {
-                passwordItem = Password(
-                  id: _password!.id,
-                  name: name,
-                  password: password,
-                );
-              } else {
-                passwordItem = Password(
-                  id: const Uuid().v4(),
-                  name: name,
-                  password: password,
-                );
-              }
+            // If editing existing password, use existing values for empty fields
+            if (_password != null) {
+              final updatedPassword = Password(
+                id: _password!.id,
+                name: name.isEmpty ? _password!.name : name,
+                password: password.isEmpty ? _password!.password : password,
+              );
 
               //Save Password
               await showDialog(
                 context: context,
                 builder: (context) {
                   return FutureProgressDialog(
-                    _selectedGroup != null
-                        ? _password == null
-                            ? PasswordsHandler.addWithGroup(
-                                password: passwordItem,
-                                groupID: _selectedGroup!.id,
-                              )
-                            : PasswordsHandler.updateByID(
-                                password: passwordItem,
-                                group: _selectedGroup,
-                              )
-                        : _password == null
-                            ? PasswordsHandler.add(password: passwordItem)
-                            : PasswordsHandler.updateByID(
-                                password: passwordItem,
-                              ),
+                    PasswordsHandler.updateByID(
+                      password: updatedPassword,
+                      group: _selectedGroup,
+                    ),
                     message: const Text("Saving..."),
                   );
                 },
               ).then((success) async {
-                //Check Success
                 if (success ?? false) {
-                  //Notify User
-                  ToastHandler.toast(message: "Password Saved!");
-
-                  //Return Home
-                  Get.back(result: passwordItem);
+                  ToastHandler.toast(message: "Password Updated!");
+                  Get.back(result: updatedPassword);
                 } else {
-                  //Notify User
-                  ToastHandler.toast(message: "Failed to Save Password");
+                  ToastHandler.toast(message: "Failed to Update Password");
                 }
               });
             } else {
-              //Notify User
-              ToastHandler.toast(message: "All Fields Are Mandatory");
+              // Handle new password creation (requires all fields)
+              if (name.isNotEmpty && password.isNotEmpty) {
+                final passwordItem = Password(
+                  id: const Uuid().v4(),
+                  name: name,
+                  password: password,
+                );
+
+                //Save Password
+                await showDialog(
+                  context: context,
+                  builder: (context) {
+                    return FutureProgressDialog(
+                      _selectedGroup != null
+                          ? _password == null
+                              ? PasswordsHandler.addWithGroup(
+                                  password: passwordItem,
+                                  groupID: _selectedGroup!.id,
+                                )
+                              : PasswordsHandler.updateByID(
+                                  password: passwordItem,
+                                  group: _selectedGroup,
+                                )
+                          : _password == null
+                              ? PasswordsHandler.add(password: passwordItem)
+                              : PasswordsHandler.updateByID(
+                                  password: passwordItem,
+                                ),
+                      message: const Text("Saving..."),
+                    );
+                  },
+                ).then((success) async {
+                  //Check Success
+                  if (success ?? false) {
+                    //Notify User
+                    ToastHandler.toast(message: "Password Saved!");
+
+                    //Return Home
+                    Get.back(result: passwordItem);
+                  } else {
+                    //Notify User
+                    ToastHandler.toast(message: "Failed to Save Password");
+                  }
+                });
+              } else {
+                //Notify User
+                ToastHandler.toast(message: "All Fields Are Mandatory");
+              }
             }
           },
         ),
