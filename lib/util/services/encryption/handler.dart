@@ -163,19 +163,41 @@ class EncryptionHandler {
     required String message,
     required RSAPublicKey publicKey,
   }) async {
+    debugPrint("Starting encryption of message length: ${message.length}");
+
     //Encryptor
     final encryptor = RSAEngine();
 
     //Init Encryptor
     encryptor.init(true, PublicKeyParameter<RSAPublicKey>(publicKey));
 
-    //Encrypt Message
-    final encrypted = encryptor.process(
-      Uint8List.fromList(utf8.encode(message)),
-    );
+    //Calculate maximum chunk size
+    final maxChunkSize = (publicKey.modulus!.bitLength ~/ 8) - 11;
+    debugPrint("Max chunk size for encryption: $maxChunkSize");
 
-    //Return Encrypted Message
-    return base64.encode(encrypted);
+    //Split message into chunks
+    final messageBytes = utf8.encode(message);
+    debugPrint("Message bytes length: ${messageBytes.length}");
+
+    final chunks = <Uint8List>[];
+    for (var i = 0; i < messageBytes.length; i += maxChunkSize) {
+      final end = (i + maxChunkSize < messageBytes.length)
+          ? i + maxChunkSize
+          : messageBytes.length;
+      chunks.add(Uint8List.fromList(messageBytes.sublist(i, end)));
+    }
+    debugPrint("Number of chunks for encryption: ${chunks.length}");
+
+    //Encrypt each chunk
+    final encryptedChunks = chunks.map((chunk) {
+      debugPrint("Processing chunk of size: ${chunk.length}");
+      return encryptor.process(chunk);
+    }).toList();
+
+    //Combine and encode
+    final combined = encryptedChunks.expand((x) => x).toList();
+    debugPrint("Combined encrypted length: ${combined.length}");
+    return base64.encode(combined);
   }
 
   ///Decrypt Message
@@ -184,24 +206,36 @@ class EncryptionHandler {
     required RSAPrivateKey privateKey,
   }) async {
     try {
-      //Decode ASCII first
-      final decodedMessage = decodeASCII(ascii: encryptedMessage);
-      if (decodedMessage == null) throw Exception("Failed to decode ASCII");
+      debugPrint(
+          "Starting decryption of message length: ${encryptedMessage.length}");
 
-      //Decryptor
+      // Clean the input string by removing any \x sequences
+      final cleanedMessage = encryptedMessage.replaceAll(r"\x", "");
+
+      // Decode the message
+      final encryptedBytes = base64.decode(cleanedMessage);
+
+      // Decryptor
       final decryptor = RSAEngine();
-
-      //Init Decryptor
       decryptor.init(false, PrivateKeyParameter<RSAPrivateKey>(privateKey));
 
-      //Decrypt Message
-      final decrypted = decryptor.process(base64.decode(decodedMessage));
+      // Calculate chunk size - should be exactly the key size
+      final keySize = privateKey.modulus!.bitLength ~/ 8;
 
-      //Return Decrypted Message
-      return utf8.decode(decrypted);
+      // Process in chunks
+      final List<int> decryptedBytes = [];
+      for (var i = 0; i < encryptedBytes.length; i += keySize) {
+        final end = i + keySize < encryptedBytes.length
+            ? i + keySize
+            : encryptedBytes.length;
+        final chunk = encryptedBytes.sublist(i, end);
+        decryptedBytes.addAll(decryptor.process(chunk));
+      }
+
+      return utf8.decode(decryptedBytes);
     } catch (e) {
       debugPrint("Decryption error: $e");
-      throw Exception("Failed to decrypt message: $e");
+      rethrow;
     }
   }
 

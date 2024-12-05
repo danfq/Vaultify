@@ -163,7 +163,7 @@ class Items {
   ///Show Deletion Confirmation
   static void _showDeleteConfirmation(Password item) {
     Get.defaultDialog(
-      title: "Delete \"${item.name}?\"",
+      title: "Delete \"${item.name}\"?",
       middleText: "You won't be able to recover this Password!",
       cancel: Buttons.text(text: "Cancel", onTap: () => Get.back()),
       confirm: Buttons.elevated(

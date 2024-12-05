@@ -8,6 +8,7 @@ import 'package:vaultify/util/models/password.dart';
 import 'package:vaultify/util/services/encryption/handler.dart';
 import 'package:vaultify/util/services/groups/handler.dart';
 import 'package:vaultify/util/services/passwords/handler.dart';
+import 'package:vaultify/util/services/passwords/strength.dart';
 import 'package:vaultify/util/services/toast/handler.dart';
 import 'package:vaultify/util/widgets/buttons.dart';
 import 'package:vaultify/util/widgets/input.dart';
@@ -118,6 +119,20 @@ class _NewItemState extends State<NewItem> {
               controller: _passwordController,
               placeholder: _password?.password ?? "Password",
               isPassword: true,
+              onChanged: (value) {
+                //Check Strength
+                setState(() {});
+              },
+            ),
+
+            //Strength Indicator
+            Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: PasswordStrengthIndicator(
+                strength: StrengthHandler.isStrong(
+                  _passwordController.text.trim(),
+                ),
+              ),
             ),
 
             //Group Selection

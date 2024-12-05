@@ -22,7 +22,7 @@ class MainServices {
   ///- Local Data (Hive).
   ///- Remote Data (Supabase).
   ///- Stripe.
-  ///- Tray.
+  ///- Tray - Desktop Only.
   static Future<void> init() async {
     //Widgets Binding
     WidgetsFlutterBinding.ensureInitialized();
@@ -47,8 +47,10 @@ class MainServices {
     //Premium
     await PremiumHandler.init();
 
-    //Tray
-    await TrayHandler.init();
+    //Tray - Desktop Only
+    if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
+      await TrayHandler.init();
+    }
   }
 
   ///Initial Route
