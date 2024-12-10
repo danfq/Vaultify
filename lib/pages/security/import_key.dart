@@ -129,6 +129,10 @@ class _ImportKeyState extends State<ImportKey> {
 
                   //Notify User
                   ToastHandler.toast(message: "Key Imported Successfully!");
+
+                  //Go to Home
+                  Get.back();
+                  Get.back();
                 },
               ),
             );
