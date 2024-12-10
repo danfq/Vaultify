@@ -31,10 +31,6 @@ For the Tray Icon to work, you need to install the `ayatana-appindicator3-0.1` o
 | Password Strength Checker | ✅ | - |
 | Password Generator | ✅ | - |
 
-#### Linux Notes
-
-For the Tray Icon to work, you need to install the `ayatana-appindicator3-0.1` or `appindicator3-0.1` package.
-
 ## Privacy
 
 The App does not collect any Data.<br>
