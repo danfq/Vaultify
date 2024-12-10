@@ -4,6 +4,7 @@ import 'package:animated_expandable_fab/expandable_fab/expandable_fab.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_vector_icons/flutter_vector_icons.dart';
 import 'package:get/route_manager.dart';
+import 'package:vaultify/pages/generate/generate.dart';
 import 'package:vaultify/pages/home/import/import.dart';
 import 'package:vaultify/pages/home/lists/groups.dart';
 import 'package:vaultify/pages/home/lists/passwords.dart';
@@ -39,6 +40,10 @@ class _VaultifyState extends State<Vaultify> {
       //Groups
       case 1:
         return const GroupsList();
+
+      //Generate Password
+      case 2:
+        return const GeneratePassword();
 
       //Default - None
       default:
@@ -156,8 +161,10 @@ class _VaultifyState extends State<Vaultify> {
 
   @override
   Widget build(BuildContext context) {
+    //Check if Mobile
     final isMobile = Platform.isIOS || Platform.isAndroid;
 
+    //UI
     return Scaffold(
       appBar: MainWidgets.appBar(
         title: const Text("Vaultify"),
@@ -196,150 +203,153 @@ class _VaultifyState extends State<Vaultify> {
               },
             )
           : null,
-      floatingActionButton: ExpandableFab(
-        distance: 100.0,
-        openIcon: const Icon(Ionicons.ios_add, color: Colors.white),
-        closeIcon: const Icon(Ionicons.ios_close_outline),
-        children: [
-          //Import from File
-          ActionButton(
-            icon: const Icon(
-              Ionicons.ios_download_outline,
-              color: Colors.white,
-            ),
-            onPressed: () async {
-              await Get.to(() => const ImportFromFile())!.then(
-                (_) => setState(() {}),
-              );
-            },
-          ),
-
-          //New Password
-          ActionButton(
-            icon: const Icon(
-              Ionicons.ios_lock_closed_outline,
-              color: Colors.white,
-            ),
-            onPressed: () async {
-              //Hit Max Passwords
-              final hitMax = await PasswordsHandler.hitMax();
-
-              //Check Max Items or Premium (Infinite Items)
-              if (!hitMax) {
-                //New Item
-                Get.to(() => const NewItem());
-              } else {
-                //Notify User
-                await Get.defaultDialog(
-                  title: "Oops!",
-                  content: const Padding(
-                    padding: EdgeInsets.all(8.0),
-                    child: Text(
-                      "You've reached the maximum Password limit.\n\nTo unlock an infinite amount, please pay the Premium one-time fee of 5€.",
-                    ),
+      floatingActionButton: _navIndex != 2
+          ? ExpandableFab(
+              distance: 100.0,
+              openIcon: const Icon(Ionicons.ios_add, color: Colors.white),
+              closeIcon: const Icon(Ionicons.ios_close_outline),
+              children: [
+                //Import from File
+                ActionButton(
+                  icon: const Icon(
+                    Ionicons.ios_download_outline,
+                    color: Colors.white,
                   ),
-                  cancel: TextButton(
-                    onPressed: () => Get.back(),
-                    child: const Text("Cancel"),
-                  ),
-                  confirm: ElevatedButton(
-                    onPressed: () {
-                      Get.back();
-                      Get.to(() => const GetPremium());
-                    },
-                    child: const Text("Get Premium"),
-                  ),
-                );
-              }
-            },
-          ),
+                  onPressed: () async {
+                    await Get.to(() => const ImportFromFile())!.then(
+                      (_) => setState(() {}),
+                    );
+                  },
+                ),
 
-          //New Group
-          ActionButton(
-            icon: const Icon(
-              Ionicons.ios_grid_outline,
-              color: Colors.white,
-            ),
-            onPressed: () async {
-              //Show New Group Sheet
-              await showModalBottomSheet(
-                context: context,
-                showDragHandle: true,
-                isScrollControlled: true,
-                builder: (context) {
-                  //New Group Name Controller
-                  final nameController = TextEditingController();
+                //New Password
+                ActionButton(
+                  icon: const Icon(
+                    Ionicons.ios_lock_closed_outline,
+                    color: Colors.white,
+                  ),
+                  onPressed: () async {
+                    //Hit Max Passwords
+                    final hitMax = await PasswordsHandler.hitMax();
 
-                  //UI
-                  return Padding(
-                    padding: EdgeInsets.only(
-                      bottom: MediaQuery.of(context).viewInsets.bottom,
-                    ),
-                    child: SizedBox(
-                      width: double.infinity,
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          //Title
-                          const Text(
-                            "New Group",
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 24.0,
-                            ),
+                    //Check Max Items or Premium (Infinite Items)
+                    if (!hitMax) {
+                      //New Item
+                      Get.to(() => const NewItem());
+                    } else {
+                      //Notify User
+                      await Get.defaultDialog(
+                        title: "Oops!",
+                        content: const Padding(
+                          padding: EdgeInsets.all(8.0),
+                          child: Text(
+                            "You've reached the maximum Password limit.\n\nTo unlock an infinite amount, please pay the Premium one-time fee of 5€.",
                           ),
+                        ),
+                        cancel: TextButton(
+                          onPressed: () => Get.back(),
+                          child: const Text("Cancel"),
+                        ),
+                        confirm: ElevatedButton(
+                          onPressed: () {
+                            Get.back();
+                            Get.to(() => const GetPremium());
+                          },
+                          child: const Text("Get Premium"),
+                        ),
+                      );
+                    }
+                  },
+                ),
 
-                          //Group Name
-                          Input(
-                            controller: nameController,
-                            placeholder: "Group Name",
+                //New Group
+                ActionButton(
+                  icon: const Icon(
+                    Ionicons.ios_grid_outline,
+                    color: Colors.white,
+                  ),
+                  onPressed: () async {
+                    //Show New Group Sheet
+                    await showModalBottomSheet(
+                      context: context,
+                      showDragHandle: true,
+                      isScrollControlled: true,
+                      builder: (context) {
+                        //New Group Name Controller
+                        final nameController = TextEditingController();
+
+                        //UI
+                        return Padding(
+                          padding: EdgeInsets.only(
+                            bottom: MediaQuery.of(context).viewInsets.bottom,
                           ),
+                          child: SizedBox(
+                            width: double.infinity,
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                //Title
+                                const Text(
+                                  "New Group",
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 24.0,
+                                  ),
+                                ),
 
-                          //Save Group
-                          Padding(
-                            padding: const EdgeInsets.all(40.0),
-                            child: Buttons.elevatedIcon(
-                              text: "Add Group",
-                              icon: Ionicons.ios_add,
-                              onTap: () async {
                                 //Group Name
-                                final groupName = nameController.text.trim();
+                                Input(
+                                  controller: nameController,
+                                  placeholder: "Group Name",
+                                ),
 
-                                //Check Group Name
-                                if (groupName.isNotEmpty) {
-                                  //Add Group
-                                  await GroupsHandler.addGroup(
-                                    name: groupName,
-                                  ).then(
-                                    (added) {
-                                      if (added != null) {
-                                        ToastHandler.toast(
-                                          message: "'$groupName' Added!",
-                                        );
-                                      } else {
-                                        ToastHandler.toast(
-                                          message: "Failed to Add",
+                                //Save Group
+                                Padding(
+                                  padding: const EdgeInsets.all(40.0),
+                                  child: Buttons.elevatedIcon(
+                                    text: "Add Group",
+                                    icon: Ionicons.ios_add,
+                                    onTap: () async {
+                                      //Group Name
+                                      final groupName =
+                                          nameController.text.trim();
+
+                                      //Check Group Name
+                                      if (groupName.isNotEmpty) {
+                                        //Add Group
+                                        await GroupsHandler.addGroup(
+                                          name: groupName,
+                                        ).then(
+                                          (added) {
+                                            if (added != null) {
+                                              ToastHandler.toast(
+                                                message: "'$groupName' Added!",
+                                              );
+                                            } else {
+                                              ToastHandler.toast(
+                                                message: "Failed to Add",
+                                              );
+                                            }
+                                          },
                                         );
                                       }
-                                    },
-                                  );
-                                }
 
-                                //Close Sheet
-                                Get.back();
-                              },
+                                      //Close Sheet
+                                      Get.back();
+                                    },
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
-                        ],
-                      ),
-                    ),
-                  );
-                },
-              );
-            },
-          ),
-        ],
-      ),
+                        );
+                      },
+                    );
+                  },
+                ),
+              ],
+            )
+          : null,
     );
   }
 }

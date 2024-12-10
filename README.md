@@ -29,7 +29,7 @@ If you're running `iOS` or `macOS`, you can download the app from the App Store!
 | Password Groups | ✅ | - |
 | Import from File | ✅ | - |
 | Password Strength Checker | ✅ | - |
-| Password Generator | ❌ | Yes |
+| Password Generator | ✅ | - |
 
 ## License
 

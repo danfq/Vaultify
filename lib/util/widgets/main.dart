@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_vector_icons/flutter_vector_icons.dart';
@@ -88,6 +87,15 @@ class MainWidgets {
               ),
               label: "Groups",
             ),
+
+            //Generate Password
+            BottomNavigationBarItem(
+              icon: Padding(
+                padding: EdgeInsets.all(8.0),
+                child: Icon(Ionicons.ios_lock_open_outline),
+              ),
+              label: "Generate Password",
+            ),
           ],
         ),
       );
@@ -121,6 +129,15 @@ class MainWidgets {
                 child: Icon(Ionicons.ios_grid_outline),
               ),
               label: "Groups",
+            ),
+
+            //Generate Password
+            BottomNavigationBarItem(
+              icon: Padding(
+                padding: EdgeInsets.all(8.0),
+                child: Icon(Ionicons.ios_lock_open_outline),
+              ),
+              label: "Generate Password",
             ),
           ],
         ),
