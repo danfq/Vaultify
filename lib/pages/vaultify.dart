@@ -79,7 +79,13 @@ class _VaultifyState extends State<Vaultify> {
         middleText:
             "It seems like you don't have a Private Key set.\nPlease set it via the Settings.",
         confirm: ElevatedButton(
-          onPressed: () => Get.to(() => const Settings()),
+          onPressed: () {
+            //Close Dialog
+            Get.back();
+
+            //Open Settings
+            Get.to(() => const Settings());
+          },
           child: const Text("Open Settings"),
         ),
       );
