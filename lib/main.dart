@@ -21,6 +21,7 @@ void main() async {
       builder: (light, dark) {
         return ToastificationWrapper(
           child: GetMaterialApp(
+            showPerformanceOverlay: false,
             theme: light,
             darkTheme: dark,
             home: initialRoute,
