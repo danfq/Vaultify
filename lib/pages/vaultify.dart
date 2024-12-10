@@ -142,6 +142,20 @@ class _VaultifyState extends State<Vaultify> {
             },
           ),
 
+          //Generate Password
+          ListTile(
+            leading: const Icon(Ionicons.ios_lock_closed_outline),
+            title: const Text("Generate Password"),
+            onTap: () {
+              setState(() {
+                _navIndex = 2;
+              });
+
+              //Close Drawer
+              Get.back();
+            },
+          ),
+
           //Settings
           ListTile(
             leading: const Icon(Ionicons.ios_settings_outline),
