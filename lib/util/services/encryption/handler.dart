@@ -163,71 +163,73 @@ class EncryptionHandler {
     required String message,
     required RSAPublicKey publicKey,
   }) async {
-    debugPrint("=== ENCRYPTION START ===");
-    debugPrint("Original message length: ${message.length}");
-
-    // First encode the message to Base64
+    //Encode Message to Base64
     final base64Message = base64.encode(utf8.encode(message));
-    debugPrint("Base64 encoded message: $base64Message");
-    debugPrint("Base64 encoded length: ${base64Message.length}");
 
     //Encryptor
     final encryptor = RSAEngine();
     encryptor.init(true, PublicKeyParameter<RSAPublicKey>(publicKey));
 
-    //Calculate maximum chunk size (key size - padding)
+    //Calculate Maximum Chunk Size
     final maxChunkSize = (publicKey.modulus!.bitLength ~/ 8) - 11;
-    final keySize = publicKey.modulus!.bitLength ~/ 8;
-    debugPrint("Key size: $keySize bytes");
-    debugPrint("Max chunk size: $maxChunkSize bytes");
 
-    //Split base64 message into chunks
+    //Key Size
+    final keySize = publicKey.modulus!.bitLength ~/ 8;
+
+    //Split Base64 Message into Chunks
     final messageBytes = utf8.encode(base64Message);
     final chunks = <Uint8List>[];
 
-    // Process complete chunks
+    //Process Complete Chunks
     for (var i = 0; i < messageBytes.length; i += maxChunkSize) {
+      //End
       final end = (i + maxChunkSize < messageBytes.length)
           ? i + maxChunkSize
           : messageBytes.length;
+
+      //Chunk
       final chunk = Uint8List.fromList(messageBytes.sublist(i, end));
+
+      //Add Chunk
       chunks.add(chunk);
-      debugPrint("Created chunk ${chunks.length} of size: ${chunk.length}");
     }
 
-    //Encrypt each chunk
+    //Encrypted Chunks
     final encryptedChunks = <Uint8List>[];
 
     for (var chunk in chunks) {
+      //Encrypt Chunk
       final encrypted = encryptor.process(chunk);
-      // Ensure each encrypted chunk is exactly key size
+
+      //Ensure Each Encrypted Chunk is Exactly Key Size
       if (encrypted.length != keySize) {
-        debugPrint(
-            "WARNING: Encrypted chunk size (${encrypted.length}) != key size ($keySize)");
-        // Pad or truncate to match key size
+        //Padded Chunk
         final paddedChunk = Uint8List(keySize);
+
+        //Set All
         paddedChunk.setAll(0, encrypted);
+
+        //Add Padded Chunk
         encryptedChunks.add(paddedChunk);
       } else {
         encryptedChunks.add(encrypted);
       }
-      debugPrint("Encrypted chunk size: ${encrypted.length}");
     }
 
     //Combine chunks and encode
-    final combined =
-        Uint8List.fromList(encryptedChunks.expand((x) => x).toList());
-    debugPrint("Combined length before base64: ${combined.length}");
+    final combined = Uint8List.fromList(
+      encryptedChunks.expand((x) => x).toList(),
+    );
 
-    // Verify the combined length is correct
+    //Verify Combined Length
     if (combined.length % keySize != 0) {
       throw Exception(
-          "Encryption error: Combined length (${combined.length}) is not a multiple of key size ($keySize)");
+        "Encryption error: Combined length (${combined.length}) is not a multiple of key size ($keySize)",
+      );
     }
 
+    //Return Result
     final result = base64.encode(combined);
-    debugPrint("Final base64 result length: ${result.length}");
-    debugPrint("=== ENCRYPTION END ===");
     return result;
   }
 
@@ -237,66 +239,61 @@ class EncryptionHandler {
     required RSAPrivateKey privateKey,
   }) async {
     try {
-      debugPrint("=== DECRYPTION START ===");
-      debugPrint("Raw encrypted message length: ${encryptedMessage.length}");
-
-      // Clean the input string by removing \x
+      //Clean Message
       final cleanedMessage = encryptedMessage.replaceAll(r"\x", "");
-      debugPrint("Cleaned hex string length: ${cleanedMessage.length}");
 
-      // Convert hex to bytes
+      //Convert Hex to Bytes
       final hexBytes = <int>[];
       for (var i = 0; i < cleanedMessage.length; i += 2) {
         final hexByte = cleanedMessage.substring(i, i + 2);
         hexBytes.add(int.parse(hexByte, radix: 16));
       }
-      debugPrint("Hex decoded length: ${hexBytes.length}");
 
-      // Now decode the base64
+      //Decode Base64
       final base64String = String.fromCharCodes(hexBytes);
-      debugPrint("Base64 string: $base64String");
       final encryptedBytes = base64.decode(base64String);
-      debugPrint("Base64 decoded length: ${encryptedBytes.length}");
 
-      // Decryptor
+      //Decryptor
       final decryptor = RSAEngine();
       decryptor.init(false, PrivateKeyParameter<RSAPrivateKey>(privateKey));
 
-      // Calculate chunk size (full key size for decryption)
+      //Calculate Key Size
       final keySize = privateKey.modulus!.bitLength ~/ 8;
-      debugPrint("RSA key size in bytes: $keySize");
 
-      // Verify the encrypted data length
+      //Verify Encrypted Data Length
       if (encryptedBytes.length % keySize != 0) {
-        debugPrint(
-            "WARNING: Encrypted data length (${encryptedBytes.length}) is not a multiple of key size ($keySize)");
         throw Exception(
-            "Invalid encrypted data length. Data may be corrupted.");
+          "Invalid Encrypted Data Length. Data May Be Corrupted.",
+        );
       }
 
-      // Process in chunks
+      //Decrypted Bytes
       final List<int> decryptedBytes = [];
+
+      //Process in Chunks
       for (var i = 0; i < encryptedBytes.length; i += keySize) {
+        //End
         final end = i + keySize;
+
+        //Chunk
         final chunk = encryptedBytes.sublist(i, end);
-        debugPrint("Processing chunk $i to $end (size: ${chunk.length})");
+
+        //Decrypt & Add Chunk to Decrypted Bytes
         decryptedBytes.addAll(decryptor.process(chunk));
       }
 
-      debugPrint("Total decrypted bytes: ${decryptedBytes.length}");
-
-      // Decode the resulting Base64 string
+      //Decode Base64
       final decodedString = utf8.decode(decryptedBytes);
-      debugPrint("Decoded Base64 string: $decodedString");
 
+      //Decode Base64
       final finalBytes = base64.decode(decodedString);
+
+      //Decode Bytes
       final result = utf8.decode(finalBytes);
 
-      debugPrint("Final decrypted message length: ${result.length}");
-      debugPrint("=== DECRYPTION END ===");
+      //Return Result
       return result;
     } catch (e) {
-      debugPrint("Decryption error: $e");
       rethrow;
     }
   }

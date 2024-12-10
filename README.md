@@ -28,7 +28,7 @@ If you're running `iOS` or `macOS`, you can download the app from the App Store!
 | Biometric Authentication | ✅ | - |
 | Password Groups | ✅ | - |
 | Import from File | ✅ | - |
-| Password Strength Checker | ❌ | Yes |
+| Password Strength Checker | ✅ | - |
 | Password Generator | ❌ | Yes |
 
 ## License
