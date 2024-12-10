@@ -12,13 +12,13 @@ It is a cross-platform App that allows you to manage all your Passwords in one p
 
 Download the latest release from the [Releases](https://github.com/danfq/Vaultify/releases) page.
 
-#### Linux Notes
-
-For the Tray Icon to work, you need to install the `ayatana-appindicator3-0.1` or `appindicator3-0.1` package.
-
 ### macOS & iOS
 
 If you're running `iOS` or `macOS`, you can download the app from the App Store!
+
+#### Linux Notes
+
+For the Tray Icon to work, you need to install the `ayatana-appindicator3-0.1` or `appindicator3-0.1` package.
 
 ## Features
 
@@ -30,6 +30,15 @@ If you're running `iOS` or `macOS`, you can download the app from the App Store!
 | Import from File | ✅ | - |
 | Password Strength Checker | ✅ | - |
 | Password Generator | ✅ | - |
+
+#### Linux Notes
+
+For the Tray Icon to work, you need to install the `ayatana-appindicator3-0.1` or `appindicator3-0.1` package.
+
+## Privacy
+
+The App does not collect any Data.<br>
+However, you can read the complete Privacy Policy [here](https://github.com/danfq/Vaultify/blob/main/PRIVACY.md).
 
 ## License
 
