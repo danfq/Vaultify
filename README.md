@@ -30,11 +30,11 @@ For the Tray Icon to work, you need to install the `ayatana-appindicator3-0.1` o
 | Import from File | ✅ | - |
 | Password Strength Checker | ✅ | - |
 | Password Generator | ✅ | - |
+| Password Leak Checker | ❌ | Yes |
 
 ## Privacy
 
-The App does not collect any Data.<br>
-However, you can read the complete Privacy Policy [here](https://github.com/danfq/Vaultify/blob/main/PRIVACY.md).
+You can read the complete Privacy Policy [here](https://github.com/danfq/Vaultify/blob/main/PRIVACY.md).
 
 ## License
 
