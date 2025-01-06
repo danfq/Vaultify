@@ -88,13 +88,13 @@ class MainWidgets {
               label: "Groups",
             ),
 
-            //Generate Password
+            //Tools
             BottomNavigationBarItem(
               icon: Padding(
                 padding: EdgeInsets.all(8.0),
-                child: Icon(Ionicons.ios_lock_open_outline),
+                child: Icon(Ionicons.ios_hammer_outline),
               ),
-              label: "Generate Password",
+              label: "Tools",
             ),
           ],
         ),
@@ -131,13 +131,13 @@ class MainWidgets {
               label: "Groups",
             ),
 
-            //Generate Password
+            //Tools
             BottomNavigationBarItem(
               icon: Padding(
                 padding: EdgeInsets.all(8.0),
-                child: Icon(Ionicons.ios_lock_open_outline),
+                child: Icon(Ionicons.ios_hammer_outline),
               ),
-              label: "Generate Password",
+              label: "Tools",
             ),
           ],
         ),

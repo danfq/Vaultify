@@ -6,6 +6,7 @@ import 'package:vaultify/util/services/toast/handler.dart';
 import 'package:vaultify/util/theming/controller.dart';
 import 'package:vaultify/util/widgets/buttons.dart';
 import 'package:vaultify/util/widgets/input.dart';
+import 'package:vaultify/util/widgets/main.dart';
 
 class GeneratePassword extends StatefulWidget {
   const GeneratePassword({super.key});
@@ -53,8 +54,12 @@ class _GeneratePasswordState extends State<GeneratePassword> {
         duration: const Duration(milliseconds: 500),
         offset: Offset(0, _showContent ? 0 : 0.1),
         child: Column(
+          mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            //Title
+            MainWidgets.pageTitle(title: "Generate Password"),
+
             //Generated Password & Copy
             Row(
               children: [
@@ -144,22 +149,25 @@ class _GeneratePasswordState extends State<GeneratePassword> {
             const SizedBox(height: 40.0),
 
             //Generate
-            Buttons.elevated(
-              text: "Generate",
-              onTap: () {
-                //Generate Password
-                final password = StrengthHandler.generateStrongPassword(
-                  length: _passwordLength.toInt(),
-                  numbers: _includeNumbers,
-                  upperCase: _includeUppercase,
-                  symbols: _includeSymbols,
-                );
+            Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: Buttons.elevated(
+                text: "Generate",
+                onTap: () {
+                  //Generate Password
+                  final password = StrengthHandler.generateStrongPassword(
+                    length: _passwordLength.toInt(),
+                    numbers: _includeNumbers,
+                    upperCase: _includeUppercase,
+                    symbols: _includeSymbols,
+                  );
 
-                //Set Password
-                setState(() {
-                  _passwordController.text = password;
-                });
-              },
+                  //Set Password
+                  setState(() {
+                    _passwordController.text = password;
+                  });
+                },
+              ),
             ),
           ],
         ),

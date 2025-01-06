@@ -4,13 +4,13 @@ import 'package:animated_expandable_fab/expandable_fab/expandable_fab.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_vector_icons/flutter_vector_icons.dart';
 import 'package:get/route_manager.dart';
-import 'package:vaultify/pages/generate/generate.dart';
 import 'package:vaultify/pages/home/import/import.dart';
 import 'package:vaultify/pages/home/lists/groups.dart';
 import 'package:vaultify/pages/home/lists/passwords.dart';
 import 'package:vaultify/pages/home/new.dart';
 import 'package:vaultify/pages/settings/profile/premium.dart';
 import 'package:vaultify/pages/settings/settings.dart';
+import 'package:vaultify/pages/tools/tools.dart';
 import 'package:vaultify/util/services/encryption/handler.dart';
 import 'package:vaultify/util/services/groups/handler.dart';
 import 'package:vaultify/util/services/passwords/handler.dart';
@@ -41,9 +41,9 @@ class _VaultifyState extends State<Vaultify> {
       case 1:
         return const GroupsList();
 
-      //Generate Password
+      //Tools
       case 2:
-        return const GeneratePassword();
+        return const Tools();
 
       //Default - None
       default:
