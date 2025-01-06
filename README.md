@@ -30,7 +30,7 @@ For the Tray Icon to work, you need to install the `ayatana-appindicator3-0.1` o
 | Import from File | ✅ | - |
 | Password Strength Checker | ✅ | - |
 | Password Generator | ✅ | - |
-| Password Leak Checker | ❌ | Yes |
+| Password Leak Checker | ✅ | - |
 
 ## Privacy
 
