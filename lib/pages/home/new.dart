@@ -8,6 +8,7 @@ import 'package:vaultify/util/models/password.dart';
 import 'package:vaultify/util/services/encryption/handler.dart';
 import 'package:vaultify/util/services/groups/handler.dart';
 import 'package:vaultify/util/services/passwords/handler.dart';
+import 'package:vaultify/util/services/passwords/hibp.dart';
 import 'package:vaultify/util/services/passwords/strength.dart';
 import 'package:vaultify/util/services/toast/handler.dart';
 import 'package:vaultify/util/widgets/buttons.dart';
@@ -175,8 +176,9 @@ class _NewItemState extends State<NewItem> {
             final name = _nameController.text.trim();
             final password = _passwordController.text.trim();
 
-            // If editing existing password, use existing values for empty fields
+            //If Editing Existing Password
             if (_password != null) {
+              //Updated Password
               final updatedPassword = Password(
                 id: _password!.id,
                 name: name.isEmpty ? _password!.name : name,
@@ -204,8 +206,25 @@ class _NewItemState extends State<NewItem> {
                 }
               });
             } else {
-              // Handle new password creation (requires all fields)
+              //Check if All Fields are Filled
               if (name.isNotEmpty && password.isNotEmpty) {
+                //Check if Password was Leaked
+                final isLeaked = await HIBP.checkPassword(password);
+
+                //If Leaked
+                if (isLeaked) {
+                  //Notify User
+                  Get.defaultDialog(
+                    title: "Password Leak",
+                    middleText:
+                        "This Password has been leaked!\nPlease use a different one.",
+                  );
+
+                  //Return
+                  return;
+                }
+
+                //New Password
                 final passwordItem = Password(
                   id: const Uuid().v4(),
                   name: name,
@@ -213,29 +232,24 @@ class _NewItemState extends State<NewItem> {
                 );
 
                 //Save Password
-                await showDialog(
-                  context: context,
-                  builder: (context) {
-                    return FutureProgressDialog(
-                      _selectedGroup != null
-                          ? _password == null
-                              ? PasswordsHandler.addWithGroup(
-                                  password: passwordItem,
-                                  groupID: _selectedGroup!.id,
-                                )
-                              : PasswordsHandler.updateByID(
-                                  password: passwordItem,
-                                  group: _selectedGroup,
-                                )
-                          : _password == null
-                              ? PasswordsHandler.add(password: passwordItem)
-                              : PasswordsHandler.updateByID(
-                                  password: passwordItem,
-                                ),
-                      message: const Text("Saving..."),
-                    );
-                  },
-                ).then((success) async {
+                Get.dialog(FutureProgressDialog(
+                  _selectedGroup != null
+                      ? _password == null
+                          ? PasswordsHandler.addWithGroup(
+                              password: passwordItem,
+                              groupID: _selectedGroup!.id,
+                            )
+                          : PasswordsHandler.updateByID(
+                              password: passwordItem,
+                              group: _selectedGroup,
+                            )
+                      : _password == null
+                          ? PasswordsHandler.add(password: passwordItem)
+                          : PasswordsHandler.updateByID(
+                              password: passwordItem,
+                            ),
+                  message: const Text("Saving..."),
+                )).then((success) async {
                   //Check Success
                   if (success ?? false) {
                     //Notify User

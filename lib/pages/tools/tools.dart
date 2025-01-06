@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_vector_icons/flutter_vector_icons.dart';
-import 'package:get/route_manager.dart';
 import 'package:vaultify/pages/tools/generate/generate.dart';
 import 'package:vaultify/pages/tools/leak/leak.dart';
 import 'package:vaultify/util/widgets/buttons.dart';

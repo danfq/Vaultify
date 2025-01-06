@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/route_manager.dart';
 import 'package:vaultify/util/services/passwords/hibp.dart';
-import 'package:vaultify/util/services/toast/handler.dart';
 import 'package:vaultify/util/widgets/buttons.dart';
 import 'package:vaultify/util/widgets/input.dart';
 import 'package:vaultify/util/widgets/main.dart';
@@ -72,6 +71,7 @@ class _LeakState extends State<Leak> {
 
                   //Close Sheet
                   Get.back();
+
                   //Notify User
                   Get.defaultDialog(
                     title: "Password Leak",
